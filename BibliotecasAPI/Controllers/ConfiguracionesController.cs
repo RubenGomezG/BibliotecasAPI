@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BibliotecasAPI.Utils.OpcionesConfiguraciones;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace BibliotecasAPI.Controllers
@@ -10,12 +12,36 @@ namespace BibliotecasAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly IConfigurationSection seccion1;
         private readonly IConfigurationSection seccion2;
+        private readonly PersonaOpciones _opcionesPersona;
+        private readonly PagosProcesamiento _pagosProcesamiento;
 
-        public ConfiguracionesController(IConfiguration configuration)
+        public ConfiguracionesController(IConfiguration configuration,
+            IOptionsSnapshot<PersonaOpciones> opcionesPersona,
+            PagosProcesamiento pagosProcesamiento)
         {
             this._configuration = configuration;
             seccion1 = configuration.GetSection("Seccion_1");
             seccion2 = configuration.GetSection("Seccion_1");
+            this._opcionesPersona = opcionesPersona.Value;
+            this._pagosProcesamiento = pagosProcesamiento;
+        }
+
+        [HttpGet("optionsMonitor")]
+        public ActionResult GetTarifas()
+        {
+            return Ok(_pagosProcesamiento.ObtenerTarifas());
+        }
+
+        [HttpGet("seccion1opciones")]
+        public ActionResult<string> GetSeccionOpcionesPersona()
+        {
+            return Ok(_opcionesPersona);
+        }
+
+        [HttpGet("seccionTarifaopciones")]
+        public ActionResult<string> GetSeccionOpcionesTarifa()
+        {
+            return Ok(_opcionesPersona);
         }
 
         [HttpGet("proveedores")]
