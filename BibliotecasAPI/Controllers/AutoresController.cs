@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.Datos;
-using BibliotecasAPI.DTO.AutorDTOs;
+using BibliotecasAPI.DAL.Datos;
+using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.Model.Entidades;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,7 @@ namespace BibliotecasAPI.Controllers
         {
             var autor = await _context.Autores
                 .Include(a => a.Libros)
+                .ThenInclude(l => l.Libro)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (autor is null)
@@ -67,9 +69,38 @@ namespace BibliotecasAPI.Controllers
                 autor.Id = id;
                 _context.Update(autor);
                 await _context.SaveChangesAsync();
-                return Ok();
+                return NoContent();
             }
             return NotFound();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, JsonPatchDocument<AutorPatchDTO> patchDoc)
+        {
+            if (patchDoc is null)
+            {
+                return BadRequest();
+            }
+
+            var autorDB = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (autorDB is null)
+            {
+                return NotFound();
+            }
+
+            var autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
+            patchDoc.ApplyTo(autorPatchDTO, ModelState);
+
+            if (!TryValidateModel(autorPatchDTO))
+            {
+                return ValidationProblem();
+            }
+
+            _mapper.Map(autorPatchDTO, autorDB);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")] //Put/api/autores/{id}
@@ -89,7 +120,7 @@ namespace BibliotecasAPI.Controllers
                 return NotFound();
             }
 
-            return Ok();
+            return NoContent();
         }
     }
 }

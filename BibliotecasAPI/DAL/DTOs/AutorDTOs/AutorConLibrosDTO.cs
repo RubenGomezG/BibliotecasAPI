@@ -1,6 +1,6 @@
-﻿using BibliotecasAPI.DTO.LibroDTOs;
+﻿using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 
-namespace BibliotecasAPI.DTO.AutorDTOs
+namespace BibliotecasAPI.DAL.DTOs.AutorDTOs
 {
     public class AutorConLibrosDTO : AutorDTO
     {
