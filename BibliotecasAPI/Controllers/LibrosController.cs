@@ -3,6 +3,7 @@ using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.Model.Entidades;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -16,12 +17,15 @@ namespace BibliotecasAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ITimeLimitedDataProtector _timeGatedProtector;
 
-        public LibrosController(ApplicationDbContext context, IMapper mapper)
+        public LibrosController(ApplicationDbContext context, IMapper mapper, IDataProtectionProvider protectionProvider)
         {
             this._context = context;
             this._mapper = mapper;
+            _timeGatedProtector = protectionProvider.CreateProtector("librosController").ToTimeLimitedDataProtector();
         }
+
         [HttpGet]
         public async Task<IEnumerable<LibroConAutoresDTO>> Get()
         {
@@ -31,6 +35,37 @@ namespace BibliotecasAPI.Controllers
                             .ToListAsync();
             var librosDTO = _mapper.Map<IEnumerable<LibroConAutoresDTO>>(libros);
             return librosDTO;
+        }
+
+        [HttpGet("listado/obtener-token")]
+        public ActionResult ObtenerTokenListado()
+        {
+            var textoPlano = Guid.NewGuid().ToString();
+            var token = _timeGatedProtector.Protect(textoPlano, lifetime: TimeSpan.FromSeconds(30));
+            var url = Url.RouteUrl("ObtenerListadoLibrosUsandoToken", new {token}, "https");
+            return Ok(new { url });
+        }
+
+        [HttpGet("listado/{token}", Name = "ObtenerListadoLibrosUsandoToken")]
+        [AllowAnonymous]
+        public async Task<ActionResult> ObtenerListadoLibrosUsandoToken(string token)
+        {
+            try
+            {
+                _timeGatedProtector.Unprotect(token);
+            }
+            catch
+            {
+                ModelState.AddModelError(nameof(token), "El token ha expirado");
+                return ValidationProblem();
+            }
+
+            var libros = await _context.Libros
+                            .Include(l => l.Autores)
+                            .ThenInclude(a => a.Autor)
+                            .ToListAsync();
+            var librosDTO = _mapper.Map<IEnumerable<LibroConAutoresDTO>>(libros);
+            return Ok(librosDTO);
         }
 
         [HttpGet("{id:int}", Name = "ObtenerLibro")] //api/libros/{id}

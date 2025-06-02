@@ -12,6 +12,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 //área de servicios
 
+builder.Services.AddDataProtection();
+var allowedHosts = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
+
+builder.Services.AddCors(opciones => 
+{
+    opciones.AddDefaultPolicy(opcionesCORS =>
+    {
+        opcionesCORS.WithOrigins(allowedHosts)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithExposedHeaders("mi-cabecera");
+    });
+});
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddDbContext<ApplicationDbContext>(opciones =>
@@ -24,6 +37,7 @@ builder.Services.AddIdentityCore<Usuario>()
 builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddTransient<IServicioHash, ServicioHash>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
@@ -47,7 +61,13 @@ builder.Services.AddAuthorization(opciones =>
 var app = builder.Build();
 
 //área de middlewares
+app.Use(async(contexto, next) =>
+{
+    contexto.Response.Headers.Append("mi-cabecera", "valor");
+    await next();
+});
 
+app.UseCors();
 app.MapControllers();
 
 app.Run();
