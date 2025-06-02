@@ -4,12 +4,14 @@ using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.Model.Entidades;
 using BibliotecasAPI.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/libros/{libroId:int}/comentarios")]
     public class ComentariosController : ControllerBase
@@ -31,6 +33,7 @@ namespace BibliotecasAPI.Controllers
                 return NotFound();
             }
             var comentarios = await _context.Comentarios
+                .Include(c => c.Usuario)
                 .Where(c => c.LibroId == libroId)
                 .OrderByDescending(l => l.FechaPublicacion)
                 .ToListAsync();
@@ -43,8 +46,9 @@ namespace BibliotecasAPI.Controllers
         public async Task<ActionResult<ComentarioConLibroDTO>> Get(Guid id)
         {
             var comentario = await _context.Comentarios
-                .Include(a => a.Libro)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                                    .Include (c => c.Usuario)
+                                    .Include(c => c.Libro)
+                                    .FirstOrDefaultAsync(x => x.Id == id);
 
             if (comentario is null)
             {

@@ -1,35 +1,44 @@
+using BibliotecasAPI.BLL.IServices;
+using BibliotecasAPI.BLL.Services;
 using BibliotecasAPI.DAL.Datos;
-using BibliotecasAPI.Utils.OpcionesConfiguraciones;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var diccionarioConfiguraciones = new Dictionary<string, string>
-{
-    {"Quien_soy", "un diccionario en memoria" }
-};
-builder.Configuration.AddInMemoryCollection(diccionarioConfiguraciones!);
-
 //área de servicios
 
-builder.Services.AddOptions<PersonaOpciones>()
-    .Bind(builder.Configuration.GetSection(PersonaOpciones.Seccion))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-
-builder.Services.AddOptions<TarifaOpciones>()
-    .Bind(builder.Configuration.GetSection(TarifaOpciones.Seccion))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-
-builder.Services.AddSingleton<PagosProcesamiento>();
-
 builder.Services.AddAutoMapper(typeof(Program));
-
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddDbContext<ApplicationDbContext>(opciones =>
     opciones.UseSqlServer("name=DefaultConnection"));
+
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<UserManager<IdentityUser>>();
+builder.Services.AddScoped<SignInManager<IdentityUser>>();
+builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddAuthentication().AddJwtBearer(opciones =>
+{
+    opciones.MapInboundClaims = false;
+    opciones.TokenValidationParameters = new TokenValidationParameters 
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["LlaveJWT"]!)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 var app = builder.Build();
 
 //área de middlewares

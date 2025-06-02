@@ -2,11 +2,13 @@
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.Model.Entidades;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/autores-coleccion")]
     public class AutoresColeccionController : ControllerBase

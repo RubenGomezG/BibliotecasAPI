@@ -2,12 +2,14 @@
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.Model.Entidades;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace BibliotecasAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/libros")]
     public class LibrosController : ControllerBase

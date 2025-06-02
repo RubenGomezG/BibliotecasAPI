@@ -39,7 +39,8 @@ namespace BibliotecasAPI.Utils.MappingProfiles
                 config.MapFrom(dto => new Libro { Titulo = dto.Titulo }));
 
             CreateMap<ComentarioCreacionDTO, Comentario>();
-            CreateMap<Comentario, ComentarioDTO>();
+            CreateMap<Comentario, ComentarioDTO>()
+                .ForMember(dto => dto.UsuarioEmail, config => config.MapFrom(c => c.Usuario!.Email));
             CreateMap<Comentario, ComentarioConLibroDTO>();
             CreateMap<Comentario, ComentarioPatchDTO>().ReverseMap();
         }

@@ -2,12 +2,14 @@
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.Model.Entidades;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/autores")]
     //[Route("api/[controller]")]
@@ -24,6 +26,7 @@ namespace BibliotecasAPI.Controllers
         
         [HttpGet] // api/autores
         [HttpGet("/lista-de-autores")] // /lista-de-autores
+        [AllowAnonymous]
         public async Task<IEnumerable<AutorDTO>> Get()
         {
             var autores = await _context.Autores.Include(a => a.Libros).ToListAsync();
