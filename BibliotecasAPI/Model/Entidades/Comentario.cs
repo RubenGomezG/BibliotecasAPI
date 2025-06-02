@@ -12,6 +12,6 @@ namespace BibliotecasAPI.Model.Entidades
         public int LibroId { get; set; }
         public Libro? Libro { get; set; }
         public required string UsuarioId { get; set; }
-        public required IdentityUser Usuario { get; set; }
+        public Usuario? Usuario { get; set; }
     }
 }

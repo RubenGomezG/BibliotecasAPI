@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "esAdmin")]
     [ApiController]
     [Route("api/autores")]
     //[Route("api/[controller]")]

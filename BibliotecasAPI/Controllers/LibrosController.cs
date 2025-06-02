@@ -9,7 +9,7 @@ using System.Data;
 
 namespace BibliotecasAPI.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "esAdmin")]
     [ApiController]
     [Route("api/libros")]
     public class LibrosController : ControllerBase

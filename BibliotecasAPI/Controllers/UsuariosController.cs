@@ -1,7 +1,12 @@
-﻿using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
+﻿using AutoMapper;
+using BibliotecasAPI.BLL.IServices;
+using BibliotecasAPI.DAL.Datos;
+using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
+using BibliotecasAPI.Model.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,26 +16,35 @@ namespace BibliotecasAPI.Controllers
 {
     [ApiController]
     [Route("api/usuarios")]
-    [Authorize]
     public class UsuariosController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<Usuario> _userManager;
         private readonly IConfiguration _configuration;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<Usuario> _signInManager;
+        private readonly IServicioUsuarios _servicioUsuarios;
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UsuariosController(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+        public UsuariosController(UserManager<Usuario> userManager,
+            IConfiguration configuration,
+            SignInManager<Usuario> signInManager,
+            IServicioUsuarios servicioUsuarios,
+            ApplicationDbContext context,
+            IMapper mapper)
         {
             this._userManager = userManager;
             this._configuration = configuration;
             this._signInManager = signInManager;
+            this._servicioUsuarios = servicioUsuarios;
+            this._context = context;
+            this._mapper = mapper;
         }
 
         [HttpPost("registro")]
-        [AllowAnonymous]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var usuario = new IdentityUser
+            var usuario = new Usuario
             {
                 UserName = credencialesUsuarioDTO.Email,
                 Email = credencialesUsuarioDTO?.Email
@@ -74,6 +88,77 @@ namespace BibliotecasAPI.Controllers
             {
                 return RetornarLoginIncorrecto();
             }
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "esAdmin")]
+        public async Task<ActionResult<IEnumerable<UsuarioDTO>>> Get()
+        {
+            var usuarios = await _context.Users.ToListAsync();
+            var usuariosDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
+            return Ok(usuariosDTO);
+        }
+
+        [HttpPut]
+        [Authorize]
+        public async Task<ActionResult> Put(ActualizarUsuarioDTO actualizarUsuarioDTO)
+        {
+            var usuario = await _servicioUsuarios.ObtenerUsuario();
+
+            if (usuario is null)
+            {
+                return NotFound();
+            }
+
+            usuario.FechaNacimiento = actualizarUsuarioDTO.FechaNacimiento;
+
+            await _userManager.UpdateAsync(usuario);
+            return NoContent();
+        }
+
+        [HttpGet("renovar-token")]
+        [Authorize]
+        public async Task<ActionResult<RespuestaAutenticacionDTO>> RenovarToken()
+        {
+            var usuario = await _servicioUsuarios.ObtenerUsuario();
+            if (usuario is null)
+            {
+                return NotFound();
+            }
+            var credencialesUsuarioDTo = new CredencialesUsuarioDTO { Email = usuario.Email! };
+
+            var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTo);
+            return respuestaAutenticacion;
+        }
+
+        [HttpPost("hacer-admin")]
+        //[Authorize(Policy = "esAdmin")]
+        public async Task<ActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
+        {
+            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.AddClaimAsync(usuario, new Claim ("esAdmin", "true"));
+            return NoContent();
+        }
+
+        [HttpPost("quitar-admin")]
+        [Authorize(Policy = "esAdmin")]
+        public async Task<ActionResult> QuitarAdmin(EditarClaimDTO editarClaimDTO)
+        {
+            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.RemoveClaimAsync(usuario, new Claim("esAdmin", "true"));
+            return NoContent();
         }
 
         private ActionResult RetornarLoginIncorrecto()
