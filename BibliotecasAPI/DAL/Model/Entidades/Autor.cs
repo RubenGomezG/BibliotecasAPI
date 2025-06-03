@@ -1,7 +1,8 @@
 ﻿using BibliotecasAPI.Utils.Validaciones;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace BibliotecasAPI.Model.Entidades
+namespace BibliotecasAPI.DAL.Model.Entidades
 {
     public class Autor
     {
@@ -19,7 +20,8 @@ namespace BibliotecasAPI.Model.Entidades
 
         [StringLength(50, ErrorMessage = "El campo {0} debe tener {1} caracteres o menos")]
         public string? Identificacion { get; set; }
-
+        [Unicode(false)]
+        public string? Foto { get; set; }
         public List<AutorLibro> Libros { get; set; } = [];
     }
 }

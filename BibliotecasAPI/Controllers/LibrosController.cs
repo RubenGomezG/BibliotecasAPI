@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BibliotecasAPI.DAL.Datos;
+using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -17,58 +19,34 @@ namespace BibliotecasAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly ITimeLimitedDataProtector _timeGatedProtector;
 
-        public LibrosController(ApplicationDbContext context, IMapper mapper, IDataProtectionProvider protectionProvider)
+        public LibrosController(ApplicationDbContext context, IMapper mapper)
         {
             this._context = context;
-            this._mapper = mapper;
-            _timeGatedProtector = protectionProvider.CreateProtector("librosController").ToTimeLimitedDataProtector();
+            this._mapper = mapper;            
         }
 
         [HttpGet]
-        public async Task<IEnumerable<LibroConAutoresDTO>> Get()
+        [AllowAnonymous]
+        public async Task<IEnumerable<LibroConAutoresDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            var libros = await _context.Libros
+            var queryable = _context.Libros
                             .Include(l => l.Autores)
                             .ThenInclude(a => a.Autor)
+                            .AsQueryable();
+
+            await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
+            var libros = await queryable
+                            .OrderBy(a => a.Titulo)
+                            .Paginar(paginacionDTO)
                             .ToListAsync();
+
             var librosDTO = _mapper.Map<IEnumerable<LibroConAutoresDTO>>(libros);
             return librosDTO;
         }
-
-        [HttpGet("listado/obtener-token")]
-        public ActionResult ObtenerTokenListado()
-        {
-            var textoPlano = Guid.NewGuid().ToString();
-            var token = _timeGatedProtector.Protect(textoPlano, lifetime: TimeSpan.FromSeconds(30));
-            var url = Url.RouteUrl("ObtenerListadoLibrosUsandoToken", new {token}, "https");
-            return Ok(new { url });
-        }
-
-        [HttpGet("listado/{token}", Name = "ObtenerListadoLibrosUsandoToken")]
-        [AllowAnonymous]
-        public async Task<ActionResult> ObtenerListadoLibrosUsandoToken(string token)
-        {
-            try
-            {
-                _timeGatedProtector.Unprotect(token);
-            }
-            catch
-            {
-                ModelState.AddModelError(nameof(token), "El token ha expirado");
-                return ValidationProblem();
-            }
-
-            var libros = await _context.Libros
-                            .Include(l => l.Autores)
-                            .ThenInclude(a => a.Autor)
-                            .ToListAsync();
-            var librosDTO = _mapper.Map<IEnumerable<LibroConAutoresDTO>>(libros);
-            return Ok(librosDTO);
-        }
-
+          
         [HttpGet("{id:int}", Name = "ObtenerLibro")] //api/libros/{id}
+        [AllowAnonymous]
         public async Task<ActionResult<LibroConAutoresDTO>> Get(int id)
         {
             var libro = await _context.Libros
@@ -158,13 +136,6 @@ namespace BibliotecasAPI.Controllers
         [HttpDelete("{id:int}")] //Put/api/libros/{id}
         public async Task<ActionResult> Delete(int id)
         {
-            //if (_context.Libros.Any(a => a.Id == id))
-            //{
-            //    _context.Remove(id);
-            //    await _context.SaveChangesAsync();
-            //    return Ok();
-            //}
-            //return NotFound();
             var registrosBorrados = await _context.Libros.Where(a => a.Id == id).ExecuteDeleteAsync();
 
             if (registrosBorrados == 0)

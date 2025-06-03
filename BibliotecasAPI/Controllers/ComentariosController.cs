@@ -3,7 +3,7 @@ using BibliotecasAPI.BLL.IServices;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -29,6 +29,7 @@ namespace BibliotecasAPI.Controllers
         }
 
         [HttpGet] // api/libros/libroId/comentarios
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ComentarioDTO>>> Get(int libroId)
         {
             if (!await LibroUtils.ExisteLibro(_context, libroId))
@@ -46,6 +47,7 @@ namespace BibliotecasAPI.Controllers
 
 
         [HttpGet("{id}", Name = "ObtenerComentario")] // api/autores/id
+        [AllowAnonymous]
         public async Task<ActionResult<ComentarioConLibroDTO>> Get(Guid id)
         {
             var comentario = await _context.Comentarios
@@ -178,7 +180,8 @@ namespace BibliotecasAPI.Controllers
             //    return NotFound();
             //}
 
-            _context.Remove(comentarioDB);
+            comentarioDB.Eliminado = true;
+            _context.Update(comentarioDB);
             await _context.SaveChangesAsync();
 
             return NoContent();

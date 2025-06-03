@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BibliotecasAPI.Model.Entidades
+namespace BibliotecasAPI.DAL.Model.Entidades
 {
     public class Libro
     {

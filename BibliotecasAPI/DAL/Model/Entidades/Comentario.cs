@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace BibliotecasAPI.Model.Entidades
+namespace BibliotecasAPI.DAL.Model.Entidades
 {
     public class Comentario
     {
@@ -12,6 +12,8 @@ namespace BibliotecasAPI.Model.Entidades
         public int LibroId { get; set; }
         public Libro? Libro { get; set; }
         public required string UsuarioId { get; set; }
+        public bool Eliminado { get; set; }
         public Usuario? Usuario { get; set; }
+        
     }
 }

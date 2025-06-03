@@ -3,7 +3,7 @@ using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
 
 namespace BibliotecasAPI.Utils.MappingProfiles
 {
@@ -19,6 +19,8 @@ namespace BibliotecasAPI.Utils.MappingProfiles
                     config => config.MapFrom(autor => MapearNombreCompletoAutor(autor)));
 
             CreateMap<AutorCreacionDTO, Autor>();
+            CreateMap<AutorCreacionConFotoDTO, Autor>()
+                .ForMember(a => a.Foto, config => config.Ignore());
             CreateMap<Autor, AutorPatchDTO>().ReverseMap();            
             CreateMap<AutorLibro, LibroDTO>()
                 .ForMember(dto => dto.Id, config => config.MapFrom(libro => libro.LibroId))

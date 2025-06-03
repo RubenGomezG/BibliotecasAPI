@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.Model.Entidades
+namespace BibliotecasAPI.DAL.Model.Entidades
 {
     [PrimaryKey(nameof(AutorId), nameof(LibroId))]
     public class AutorLibro

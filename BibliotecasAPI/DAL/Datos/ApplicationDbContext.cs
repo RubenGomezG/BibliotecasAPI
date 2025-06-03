@@ -1,4 +1,4 @@
-﻿using BibliotecasAPI.Model.Entidades;
+﻿using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +12,8 @@ namespace BibliotecasAPI.DAL.Datos
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);            
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Comentario>().HasQueryFilter(c => !c.Eliminado);
         }
 
         public DbSet<Autor> Autores { get; set; }

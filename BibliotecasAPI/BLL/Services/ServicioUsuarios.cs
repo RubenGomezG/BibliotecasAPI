@@ -1,5 +1,5 @@
 ﻿using BibliotecasAPI.BLL.IServices;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Identity;
 
 namespace BibliotecasAPI.BLL.Services

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

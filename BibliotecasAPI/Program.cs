@@ -1,12 +1,13 @@
 using BibliotecasAPI.BLL.IServices;
 using BibliotecasAPI.BLL.Services;
 using BibliotecasAPI.DAL.Datos;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Swagger;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,7 @@ builder.Services.AddCors(opciones =>
         opcionesCORS.WithOrigins(allowedHosts)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .WithExposedHeaders("mi-cabecera");
+                    .WithExposedHeaders("cantidad-registros");
     });
 });
 builder.Services.AddAutoMapper(typeof(Program));
@@ -37,9 +38,9 @@ builder.Services.AddIdentityCore<Usuario>()
 builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
-builder.Services.AddTransient<IServicioHash, ServicioHash>();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
 {
     opciones.MapInboundClaims = false;
@@ -58,16 +59,60 @@ builder.Services.AddAuthorization(opciones =>
 {
     opciones.AddPolicy("esAdmin", policy => policy.RequireClaim("esAdmin"));
 });
+
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Biblioteca API",
+        Description = "Este es un web API para trabajar con datos de autores y libros",
+        Contact = new OpenApiContact
+        {
+            Email = "Rubeng@gmail.com",
+            Name = "Ruben Gomez",
+            Url = new Uri("https://www.linkedin.com/in/rubengomezgarc/")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/license/mit/")
+        }
+    });
+    opciones.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+    opciones.OperationFilter<FiltroAutorizacion>();
+    //opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
+    //{
+    //    {
+    //        new OpenApiSecurityScheme
+    //        {
+    //            Reference = new OpenApiReference
+    //            {
+    //                Type = ReferenceType.SecurityScheme,
+    //                Id = "Bearer"
+    //            }
+    //        },
+    //        new string[]{}
+    //    }
+    //});
+});
 var app = builder.Build();
 
 //área de middlewares
-app.Use(async(contexto, next) =>
-{
-    contexto.Response.Headers.Append("mi-cabecera", "valor");
-    await next();
-});
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseStaticFiles();
 
 app.UseCors();
+
 app.MapControllers();
 
 app.Run();

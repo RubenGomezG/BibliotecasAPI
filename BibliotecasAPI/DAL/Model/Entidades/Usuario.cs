@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace BibliotecasAPI.Model.Entidades
+namespace BibliotecasAPI.DAL.Model.Entidades
 {
     public class Usuario : IdentityUser
     {

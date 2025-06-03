@@ -1,4 +1,4 @@
-﻿using BibliotecasAPI.Model.Entidades;
+﻿using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Validaciones;
 using System.ComponentModel.DataAnnotations;
 

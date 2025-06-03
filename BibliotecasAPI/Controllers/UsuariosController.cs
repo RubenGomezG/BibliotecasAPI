@@ -2,7 +2,7 @@
 using BibliotecasAPI.BLL.IServices;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
-using BibliotecasAPI.Model.Entidades;
+using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -132,7 +132,7 @@ namespace BibliotecasAPI.Controllers
         }
 
         [HttpPost("hacer-admin")]
-        //[Authorize(Policy = "esAdmin")]
+        [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
             var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
