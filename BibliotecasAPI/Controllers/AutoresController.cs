@@ -5,9 +5,11 @@ using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Extensions;
+using BibliotecasAPI.Utils.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 
@@ -23,21 +25,27 @@ namespace BibliotecasAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IAlmacenadorArchivos _almacenadorArchivos;
         private readonly ILogger<AutoresController> _logger;
+        private readonly IOutputCacheStore _outputCacheStore;
         private const string CONTENEDOR = "autores";
+        private const string CACHE_AUTORES = "autores-obtener";
 
         public AutoresController(ApplicationDbContext context, IMapper mapper,
-            IAlmacenadorArchivos almacenadorArchivos, ILogger<AutoresController> logger)
+            IAlmacenadorArchivos almacenadorArchivos, ILogger<AutoresController> logger,
+            IOutputCacheStore outputCacheStore)
         {
             _context = context;
             _mapper = mapper;
             _almacenadorArchivos = almacenadorArchivos;
             this._logger = logger;
+            this._outputCacheStore = outputCacheStore;
         }
         
         [HttpGet] // api/autores
         [AllowAnonymous]
+        [OutputCache(Tags = [CACHE_AUTORES])]
+        [ServiceFilter<MiFiltroDeAccion>()]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
-        {
+            {
             var queryable = _context.Autores.Include(a => a.Libros).AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
 
@@ -142,6 +150,7 @@ namespace BibliotecasAPI.Controllers
         [ProducesResponseType<AutorConLibrosDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [AllowAnonymous]
+        [OutputCache]
         public async Task<ActionResult<AutorConLibrosDTO>> Get(int id)
         {
             var autor = await _context.Autores
@@ -164,8 +173,9 @@ namespace BibliotecasAPI.Controllers
             var autor = _mapper.Map<Autor>(autorCreacionDTO);
             _context.Add(autor);
             await _context.SaveChangesAsync();
-            var autorDTO = _mapper.Map<AutorDTO>(autor);
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
 
+            var autorDTO = _mapper.Map<AutorDTO>(autor);
             return CreatedAtRoute("ObtenerAutor", new { id = autorDTO.Id}, autorDTO);
         }
 
@@ -182,8 +192,9 @@ namespace BibliotecasAPI.Controllers
 
             _context.Add(autor);
             await _context.SaveChangesAsync();
-            var autorDTO = _mapper.Map<AutorDTO>(autor);
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
 
+            var autorDTO = _mapper.Map<AutorDTO>(autor);
             return CreatedAtRoute("ObtenerAutor", new { id = autorDTO.Id}, autorDTO);
         }
 
@@ -204,6 +215,7 @@ namespace BibliotecasAPI.Controllers
 
                 _context.Update(autor);
                 await _context.SaveChangesAsync();
+                await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
                 return NoContent();
             }
             return NotFound();
@@ -234,7 +246,7 @@ namespace BibliotecasAPI.Controllers
 
             _mapper.Map(autorPatchDTO, autorDB);
             await _context.SaveChangesAsync();
-
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
             return NoContent();
         }
 
@@ -250,8 +262,9 @@ namespace BibliotecasAPI.Controllers
 
             _context.Remove(autor);
             await _context.SaveChangesAsync();
-            await _almacenadorArchivos.Borrar(autor.Foto, CONTENEDOR);
 
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
+            await _almacenadorArchivos.Borrar(autor.Foto, CONTENEDOR);
             return NoContent();
         }
     }

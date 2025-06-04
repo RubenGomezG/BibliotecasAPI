@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BibliotecasAPI.Utils.Validaciones
+namespace BibliotecasAPI.Utils.Validation
 {
     public class PrimeraLetraMayusculaAttribute : ValidationAttribute
     {

@@ -2,6 +2,7 @@ using BibliotecasAPI.BLL.IServices;
 using BibliotecasAPI.BLL.Services;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Filters;
 using BibliotecasAPI.Utils.Swagger;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,16 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 //área de servicios
+
+//builder.Services.AddStackExchangeRedisOutputCache(opciones =>
+//{
+//    opciones.Configuration = builder.Configuration.GetConnectionString("Redis");
+//});
+
+builder.Services.AddOutputCache(opciones =>
+{
+    opciones.DefaultExpirationTimeSpan = TimeSpan.FromSeconds(60);
+});
 
 builder.Services.AddDataProtection();
 var allowedHosts = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
@@ -39,6 +50,7 @@ builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+builder.Services.AddScoped<MiFiltroDeAccion>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
@@ -112,7 +124,7 @@ app.UseSwaggerUI();
 app.UseStaticFiles();
 
 app.UseCors();
-
+app.UseOutputCache();
 app.MapControllers();
 
 app.Run();

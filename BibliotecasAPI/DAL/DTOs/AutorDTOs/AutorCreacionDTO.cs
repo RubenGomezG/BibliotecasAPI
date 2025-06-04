@@ -1,6 +1,6 @@
 ﻿using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
-using BibliotecasAPI.Utils.Validaciones;
+using BibliotecasAPI.Utils.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace BibliotecasAPI.DAL.DTOs.AutorDTOs

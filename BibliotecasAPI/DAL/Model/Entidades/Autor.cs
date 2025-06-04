@@ -1,4 +1,4 @@
-﻿using BibliotecasAPI.Utils.Validaciones;
+﻿using BibliotecasAPI.Utils.Validation;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 

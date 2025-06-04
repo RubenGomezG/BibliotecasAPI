@@ -7,6 +7,7 @@ using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
@@ -19,15 +20,19 @@ namespace BibliotecasAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IOutputCacheStore _outputCacheStore;
+        private const string CACHE_LIBROS = "libros-obtener";
 
-        public LibrosController(ApplicationDbContext context, IMapper mapper)
+        public LibrosController(ApplicationDbContext context, IMapper mapper, IOutputCacheStore outputCacheStore)
         {
-            this._context = context;
-            this._mapper = mapper;            
+            _context = context;
+            _mapper = mapper;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpGet]
         [AllowAnonymous]
+        [OutputCache(Tags = [CACHE_LIBROS])]
         public async Task<IEnumerable<LibroConAutoresDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             var queryable = _context.Libros
@@ -47,6 +52,7 @@ namespace BibliotecasAPI.Controllers
           
         [HttpGet("{id:int}", Name = "ObtenerLibro")] //api/libros/{id}
         [AllowAnonymous]
+        [OutputCache]
         public async Task<ActionResult<LibroConAutoresDTO>> Get(int id)
         {
             var libro = await _context.Libros
@@ -90,6 +96,7 @@ namespace BibliotecasAPI.Controllers
             _context.Add(libro);
             await _context.SaveChangesAsync();
 
+            await _outputCacheStore.EvictByTagAsync(CACHE_LIBROS, default);
             var libroDTO = _mapper.Map<LibroDTO>(libro);
             return CreatedAtRoute("ObtenerLibro", new { id = libro.Id }, libro);
         }
@@ -130,6 +137,7 @@ namespace BibliotecasAPI.Controllers
             AsignarOrdenAutores(libroDB);
 
             await _context.SaveChangesAsync();
+            await _outputCacheStore.EvictByTagAsync(CACHE_LIBROS, default);
             return NoContent();
         }
 
@@ -143,6 +151,7 @@ namespace BibliotecasAPI.Controllers
                 return NotFound();
             }
 
+            await _outputCacheStore.EvictByTagAsync(CACHE_LIBROS, default);
             return NoContent();
         }
 
