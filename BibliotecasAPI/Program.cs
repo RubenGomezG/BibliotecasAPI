@@ -3,7 +3,9 @@ using BibliotecasAPI.BLL.Services;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Filters;
+using BibliotecasAPI.Utils.Middlewares;
 using BibliotecasAPI.Utils.Swagger;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -38,7 +40,11 @@ builder.Services.AddCors(opciones =>
     });
 });
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers(opciones =>
+{
+    opciones.Filters.Add<FiltroTiempoEjecucion>();
+}).AddNewtonsoftJson();
+
 builder.Services.AddDbContext<ApplicationDbContext>(opciones =>
     opciones.UseSqlServer("name=DefaultConnection"));
 
@@ -51,6 +57,7 @@ builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 builder.Services.AddScoped<MiFiltroDeAccion>();
+builder.Services.AddScoped<FiltroValidacionLibro>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
@@ -118,6 +125,7 @@ var app = builder.Build();
 
 //área de middlewares
 
+app.UseErrorHandler();
 app.UseSwagger();
 app.UseSwaggerUI();
 

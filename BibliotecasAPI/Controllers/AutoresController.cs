@@ -18,7 +18,7 @@ namespace BibliotecasAPI.Controllers
     [Authorize(Policy = "esAdmin")]
     [ApiController]
     [Route("api/autores")]
-    //[Route("api/[controller]")]
+    [FiltroAgregarCabeceras("controller", "autores")]    
     public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -36,16 +36,17 @@ namespace BibliotecasAPI.Controllers
             _context = context;
             _mapper = mapper;
             _almacenadorArchivos = almacenadorArchivos;
-            this._logger = logger;
-            this._outputCacheStore = outputCacheStore;
+            _logger = logger;
+            _outputCacheStore = outputCacheStore;
         }
         
         [HttpGet] // api/autores
         [AllowAnonymous]
-        [OutputCache(Tags = [CACHE_AUTORES])]
+        //[OutputCache(Tags = [CACHE_AUTORES])]
         [ServiceFilter<MiFiltroDeAccion>()]
+        [FiltroAgregarCabeceras("accion", "get")]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
-            {
+        {
             var queryable = _context.Autores.Include(a => a.Libros).AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnCabecera(queryable);
 
