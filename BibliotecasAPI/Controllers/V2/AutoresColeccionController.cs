@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.Controllers
+namespace BibliotecasAPI.Controllers.V2
 {
     [Authorize(Policy = "esAdmin")]
     [ApiController]
-    [Route("api/autores-coleccion")]
+    [Route("api/v2/autores-coleccion")]
     public class AutoresColeccionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +22,7 @@ namespace BibliotecasAPI.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{ids}", Name= "ObtenerAutoresPorIds")]
+        [HttpGet("{ids}", Name= "ObtenerAutoresPorIdsV2")]
         public async Task<ActionResult<List<AutorConLibrosDTO>>> Get(string ids)
         {
             var idsColeccion = new List<int>();
@@ -63,7 +63,7 @@ namespace BibliotecasAPI.Controllers
             var autoresDTO = _mapper.Map<IEnumerable<AutorDTO>>(autores);
             var ids = autores.Select(a => a.Id);
             var idsString = string.Join(",", ids);
-            return CreatedAtRoute("ObtenerAutoresPorIds", new { ids = idsString }, autoresDTO);
+            return CreatedAtRoute("ObtenerAutoresPorIdsV2", new { ids = idsString }, autoresDTO);
         }
     }
 }

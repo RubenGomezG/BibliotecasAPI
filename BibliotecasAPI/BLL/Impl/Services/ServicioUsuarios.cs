@@ -1,8 +1,8 @@
-﻿using BibliotecasAPI.BLL.IServices;
+﻿using BibliotecasAPI.BLL.Interfaces.IServices;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Identity;
 
-namespace BibliotecasAPI.BLL.Services
+namespace BibliotecasAPI.BLL.Impl.Services
 {
     public class ServicioUsuarios : IServicioUsuarios
     {
@@ -11,8 +11,8 @@ namespace BibliotecasAPI.BLL.Services
 
         public ServicioUsuarios(UserManager<Usuario> userManager, IHttpContextAccessor contextAccessor)
         {
-            this._userManager = userManager;
-            this._contextAccessor = contextAccessor;
+            _userManager = userManager;
+            _contextAccessor = contextAccessor;
         }
 
         public async Task<Usuario?> ObtenerUsuario()

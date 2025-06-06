@@ -1,11 +1,14 @@
-using BibliotecasAPI.BLL.IServices;
-using BibliotecasAPI.BLL.Services;
+using BibliotecasAPI.BLL.Impl.Services;
+using BibliotecasAPI.BLL.Impl.Services.V1;
+using BibliotecasAPI.BLL.Impl.Services.V2;
+using BibliotecasAPI.BLL.Interfaces.IServices;
+using BibliotecasAPI.BLL.Interfaces.IServices.V1;
+using BibliotecasAPI.BLL.Interfaces.IServices.V2;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Filters;
 using BibliotecasAPI.Utils.Middlewares;
 using BibliotecasAPI.Utils.Swagger;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,6 +57,9 @@ builder.Services.AddIdentityCore<Usuario>()
 
 builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
+builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddTransient<IServicioAutores, ServicioAutores>();
+builder.Services.AddTransient<IServicioAutoresV2, ServicioAutoresV2>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 builder.Services.AddScoped<MiFiltroDeAccion>();

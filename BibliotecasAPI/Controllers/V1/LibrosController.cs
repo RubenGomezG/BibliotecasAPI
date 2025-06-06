@@ -12,11 +12,11 @@ using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace BibliotecasAPI.Controllers
+namespace BibliotecasAPI.Controllers.V1
 {
     [Authorize(Policy = "esAdmin")]
     [ApiController]
-    [Route("api/libros")]
+    [Route("api/v1/libros")]
     public class LibrosController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -51,7 +51,7 @@ namespace BibliotecasAPI.Controllers
             return librosDTO;
         }
           
-        [HttpGet("{id:int}", Name = "ObtenerLibro")] //api/libros/{id}
+        [HttpGet("{id:int}", Name = "ObtenerLibroV1")] //api/libros/{id}
         [AllowAnonymous]
         [OutputCache]
         public async Task<ActionResult<LibroConAutoresDTO>> Get(int id)
@@ -83,7 +83,7 @@ namespace BibliotecasAPI.Controllers
 
             var libroDTO = _mapper.Map<LibroDTO>(libro);
             //return Ok(libroDTO);
-            return CreatedAtRoute("ObtenerLibro", new { id = libro.Id }, libroDTO);
+            return CreatedAtRoute("ObtenerLibroV1", new { id = libro.Id }, libroDTO);
         }
 
         [HttpPut("{id:int}")] //Put/api/libros/{id}

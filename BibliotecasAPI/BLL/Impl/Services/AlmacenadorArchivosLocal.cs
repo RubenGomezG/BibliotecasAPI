@@ -1,6 +1,6 @@
-﻿using BibliotecasAPI.BLL.IServices;
+﻿using BibliotecasAPI.BLL.Interfaces.IServices;
 
-namespace BibliotecasAPI.BLL.Services
+namespace BibliotecasAPI.BLL.Impl.Services
 {
     public class AlmacenadorArchivosLocal : IAlmacenadorArchivos
     {
@@ -9,8 +9,8 @@ namespace BibliotecasAPI.BLL.Services
 
         public AlmacenadorArchivosLocal(IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
-            this._environment = environment;
-            this._httpContextAccessor = httpContextAccessor;
+            _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<string> Almacenar(string? contenedor, IFormFile archivo)

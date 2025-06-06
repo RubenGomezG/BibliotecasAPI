@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.BLL.IServices;
+using BibliotecasAPI.BLL.Interfaces.IServices;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
@@ -12,10 +12,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BibliotecasAPI.Controllers
+namespace BibliotecasAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/usuarios")]
+    [Route("api/v2/usuarios")]
     public class UsuariosController : ControllerBase
     {
         private readonly UserManager<Usuario> _userManager;
@@ -32,12 +32,12 @@ namespace BibliotecasAPI.Controllers
             ApplicationDbContext context,
             IMapper mapper)
         {
-            this._userManager = userManager;
-            this._configuration = configuration;
-            this._signInManager = signInManager;
-            this._servicioUsuarios = servicioUsuarios;
-            this._context = context;
-            this._mapper = mapper;
+            _userManager = userManager;
+            _configuration = configuration;
+            _signInManager = signInManager;
+            _servicioUsuarios = servicioUsuarios;
+            _context = context;
+            _mapper = mapper;
         }
 
         [HttpPost("registro")]

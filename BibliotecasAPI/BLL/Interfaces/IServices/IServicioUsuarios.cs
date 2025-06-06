@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 
-namespace BibliotecasAPI.BLL.IServices
+namespace BibliotecasAPI.BLL.Interfaces.IServices
 {
     public interface IServicioUsuarios
     {
