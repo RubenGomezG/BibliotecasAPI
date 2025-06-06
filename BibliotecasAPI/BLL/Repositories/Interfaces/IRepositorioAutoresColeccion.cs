@@ -1,7 +1,7 @@
 ﻿using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BibliotecasAPI.BLL.Interfaces.IRepositories
+namespace BibliotecasAPI.BLL.Repositories.Interfaces
 {
     public interface IRepositorioAutoresColeccion
     {

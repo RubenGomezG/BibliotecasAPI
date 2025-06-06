@@ -1,11 +1,11 @@
-﻿using BibliotecasAPI.BLL.Interfaces.IRepositories;
-using BibliotecasAPI.BLL.Interfaces.IServices.V1;
+﻿using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BibliotecasAPI.BLL.Impl.Services.V1
+namespace BibliotecasAPI.BLL.Services.Impl.V1
 {
     public class ServicioAutores : IServicioAutores
     {

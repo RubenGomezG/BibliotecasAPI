@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.BLL.Interfaces.IRepositories;
-using BibliotecasAPI.BLL.Interfaces.IServices;
+using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 
-namespace BibliotecasAPI.BLL.Impl.Repositories
+namespace BibliotecasAPI.BLL.Repositories.Impl
 {
     public class RepositorioAutores : IRepositorioAutores
     {

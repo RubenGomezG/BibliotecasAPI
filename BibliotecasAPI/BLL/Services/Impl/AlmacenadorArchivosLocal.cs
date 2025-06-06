@@ -1,6 +1,6 @@
-﻿using BibliotecasAPI.BLL.Interfaces.IServices;
+﻿using BibliotecasAPI.BLL.Services.Interfaces;
 
-namespace BibliotecasAPI.BLL.Impl.Services
+namespace BibliotecasAPI.BLL.Services.Impl
 {
     public class AlmacenadorArchivosLocal : IAlmacenadorArchivos
     {

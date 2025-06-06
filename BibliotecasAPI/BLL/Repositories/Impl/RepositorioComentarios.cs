@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.BLL.Interfaces.IRepositories;
-using BibliotecasAPI.BLL.Interfaces.IServices;
+using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.BLL.Impl.Repositories
+namespace BibliotecasAPI.BLL.Repositories.Impl
 {
     public class RepositorioComentarios : IRepositorioComentarios
     {

@@ -1,4 +1,4 @@
-﻿namespace BibliotecasAPI.BLL.Interfaces.IServices
+﻿namespace BibliotecasAPI.BLL.Services.Interfaces
 {
     public interface IAlmacenadorArchivos
     {

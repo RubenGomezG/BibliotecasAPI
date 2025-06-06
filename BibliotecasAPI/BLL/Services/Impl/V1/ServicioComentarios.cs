@@ -1,15 +1,11 @@
-﻿using BibliotecasAPI.BLL.Interfaces.IRepositories;
-using BibliotecasAPI.BLL.Interfaces.IServices;
-using BibliotecasAPI.BLL.Interfaces.IServices.V1;
+﻿using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
-using BibliotecasAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.BLL.Impl.Services.V1
+namespace BibliotecasAPI.BLL.Services.Impl.V1
 {
     public class ServicioComentarios : IServicioComentarios
     {

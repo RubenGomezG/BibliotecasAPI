@@ -1,9 +1,11 @@
-using BibliotecasAPI.BLL.Impl.Services;
-using BibliotecasAPI.BLL.Impl.Services.V1;
-using BibliotecasAPI.BLL.Impl.Services.V2;
-using BibliotecasAPI.BLL.Interfaces.IServices;
-using BibliotecasAPI.BLL.Interfaces.IServices.V1;
-using BibliotecasAPI.BLL.Interfaces.IServices.V2;
+using BibliotecasAPI.BLL.Repositories.Impl;
+using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Impl;
+using BibliotecasAPI.BLL.Services.Impl.V1;
+using BibliotecasAPI.BLL.Services.Impl.V2;
+using BibliotecasAPI.BLL.Services.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces.V1;
+using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Filters;
@@ -57,13 +59,23 @@ builder.Services.AddIdentityCore<Usuario>()
 
 builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
+builder.Services.AddScoped<MiFiltroDeAccion>();
+builder.Services.AddScoped<FiltroValidacionLibro>();
+
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IServicioAutores, ServicioAutores>();
 builder.Services.AddTransient<IServicioAutoresV2, ServicioAutoresV2>();
-builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddTransient<IServicioComentarios, ServicioComentarios>();
+builder.Services.AddTransient<IServicioAutoresColeccion, ServicioAutoresColeccion>();
+builder.Services.AddTransient<IServicioLibros, ServicioLibros>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
-builder.Services.AddScoped<MiFiltroDeAccion>();
-builder.Services.AddScoped<FiltroValidacionLibro>();
+builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+
+builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
+builder.Services.AddTransient<IRepositorioAutores, RepositorioAutores>();
+builder.Services.AddTransient<IRepositorioAutoresColeccion, RepositorioAutoresColeccion>();
+builder.Services.AddTransient<IRepositorioComentarios, RepositorioComentarios>();
+builder.Services.AddTransient<IRepositorioLibros, RepositorioLibros>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.BLL.Interfaces.IServices.V2;
+using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;

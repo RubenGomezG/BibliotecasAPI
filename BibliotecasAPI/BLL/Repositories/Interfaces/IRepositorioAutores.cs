@@ -2,15 +2,15 @@
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.BLL.Interfaces.IServices.V1
+namespace BibliotecasAPI.BLL.Repositories.Interfaces
 {
-    public interface IServicioAutores
+    public interface IRepositorioAutores
     {
         public Task<IEnumerable<AutorDTO>> GetAutores(PaginacionDTO paginacionDTO);
         public Task<ActionResult<IEnumerable<AutorDTO>>> Filtrar(AutorFiltroDTO autorFiltroDTO);
         public Task<ActionResult<AutorConLibrosDTO>> GetAutorPorId(int id);
+        public Task<ActionResult<AutorConLibrosDTO>> GetAutorPorIdV2(int id, bool incluirLibros = false);
         public Task<ActionResult> AnadirAutor(AutorCreacionDTO autorCreacionDTO);
         public Task<ActionResult> AnadirAutorConFoto(AutorCreacionConFotoDTO autorCreacionDTO);
         public Task<ActionResult> ActualizarAutor(int id, AutorCreacionConFotoDTO autorCreacionDTO);

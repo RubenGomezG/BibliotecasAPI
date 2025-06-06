@@ -3,9 +3,9 @@ using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BibliotecasAPI.BLL.Interfaces.IRepositories
+namespace BibliotecasAPI.BLL.Services.Interfaces.V1
 {
-    public interface IRepositorioComentarios
+    public interface IServicioComentarios
     {
         public Task<ActionResult<IEnumerable<ComentarioDTO>>> GetComentariosDeLibro(int libroId);
         public Task<ActionResult<ComentarioConLibroDTO>> GetComentarioPorId(Guid id);

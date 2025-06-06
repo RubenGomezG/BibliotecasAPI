@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
+using BibliotecasAPI.BLL.Repositories.Interfaces;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.BLL.Impl.Repositories
+namespace BibliotecasAPI.BLL.Repositories.Impl
 {
-    public class RepositorioAutoresColeccion
+    public class RepositorioAutoresColeccion : IRepositorioAutoresColeccion
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;

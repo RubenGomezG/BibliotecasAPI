@@ -1,4 +1,4 @@
-﻿using BibliotecasAPI.BLL.Interfaces.IServices.V1;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
