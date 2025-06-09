@@ -16,14 +16,14 @@ namespace BibliotecasAPI.Controllers.V2
     [ApiController]
     [Route("api/v2/autores")]
     [FiltroAgregarCabeceras("controller", "autores")]    
-    public class AutoresControllerV2 : ControllerBase
+    public class AutoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IServicioAutoresV2 _servicioAutoresV2;
 
 
-        public AutoresControllerV2(ApplicationDbContext context, IMapper mapper,
+        public AutoresController(ApplicationDbContext context, IMapper mapper,
              IServicioAutoresV2 servicioAutoresV2)
         {
             _context = context;

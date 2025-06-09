@@ -27,7 +27,7 @@ namespace BibliotecasAPI.Controllers.V1
             _servicioLibros = servicioLibros;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "ObtenerLibrosV1")]
         [AllowAnonymous]
         [OutputCache(Tags = [CACHE_LIBROS])]
         public async Task<IEnumerable<LibroConAutoresDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
@@ -43,21 +43,21 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioLibros.GetLibroPorId(id);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CrearLibroV1")]
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult> Post(LibroCreacionDTO libroCreacionDTO)
         {
             return await _servicioLibros.AnadirLibro(libroCreacionDTO);
         }
 
-        [HttpPut("{id:int}")] //Put/api/libros/{id}
+        [HttpPut("{id:int}", Name = "ActualizarLibroV1")] //Put/api/libros/{id}
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult> Put(int id, LibroCreacionDTO libroCreacionDTO)
         {
             return await _servicioLibros.ActualizarLibro(id, libroCreacionDTO);
         }
 
-        [HttpDelete("{id:int}")] //Put/api/libros/{id}
+        [HttpDelete("{id:int}", Name = "BorrarLibroV1")] //Put/api/libros/{id}
         public async Task<ActionResult> Delete(int id)
         {
             return await _servicioLibros.BorrarLibro(id);

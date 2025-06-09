@@ -48,6 +48,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers(opciones =>
 {
     opciones.Filters.Add<FiltroTiempoEjecucion>();
+    opciones.Conventions.Add(new ConvencionAgrupaPorVersion());
 }).AddNewtonsoftJson();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opciones =>
@@ -101,6 +102,7 @@ builder.Services.AddSwaggerGen(opciones =>
 {
     opciones.SwaggerDoc("v1", new OpenApiInfo
     {
+        Version = "v1",
         Title = "Biblioteca API",
         Description = "Este es un web API para trabajar con datos de autores y libros",
         Contact = new OpenApiContact
@@ -115,6 +117,25 @@ builder.Services.AddSwaggerGen(opciones =>
             Url = new Uri("https://opensource.org/license/mit/")
         }
     });
+
+    opciones.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2",
+        Title = "Biblioteca API",
+        Description = "Este es un web API para trabajar con datos de autores y libros",
+        Contact = new OpenApiContact
+        {
+            Email = "Rubeng@gmail.com",
+            Name = "Ruben Gomez",
+            Url = new Uri("https://www.linkedin.com/in/rubengomezgarc/")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/license/mit/")
+        }
+    });
+
     opciones.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -145,7 +166,11 @@ var app = builder.Build();
 
 app.UseErrorHandler();
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(opciones =>
+{
+    opciones.SwaggerEndpoint("/swagger/v1/swagger.json", "Biblioteca API V1");
+    opciones.SwaggerEndpoint("/swagger/v2/swagger.json", "Biblioteca API V2");
+});
 
 app.UseStaticFiles();
 

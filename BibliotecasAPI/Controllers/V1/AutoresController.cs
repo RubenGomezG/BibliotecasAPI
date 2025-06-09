@@ -32,7 +32,7 @@ namespace BibliotecasAPI.Controllers.V1
             _servicioAutoresV1 = servicioAutoresV1;
         }
         
-        [HttpGet] // api/autores
+        [HttpGet(Name = "ObtenerAutoresV1")] // api/autores
         [AllowAnonymous]
         //[OutputCache(Tags = [CACHE_AUTORES])]
         [ServiceFilter<MiFiltroDeAccion>()]
@@ -42,14 +42,7 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioAutoresV1.GetAutores(paginacionDTO);
         }
 
-        [HttpGet("filtrar")]
-        [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<AutorDTO>>> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
-        {
-            return await _servicioAutoresV1.Filtrar(autorFiltroDTO);           
-        }
-
-        [HttpGet("{id:int}", Name = "ObtenerAutorV1")] // api/autores/id
+        [HttpGet("{id:int}", Name = "ObtenerAutorPorIdV1")] // api/autores/id
         [EndpointSummary("Obtiene autor por id")]
         [EndpointDescription("Obtiene autor por id. Incluye sus libros. Si el autor no existe, se retorna 404")]
         [ProducesResponseType<AutorConLibrosDTO>(StatusCodes.Status200OK)]
@@ -61,25 +54,32 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioAutoresV1.GetAutorPorId(id);
         }
 
-        [HttpPost]
+        [HttpGet("filtrar", Name = "FiltrarAutoresV1")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<AutorDTO>>> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
+        {
+            return await _servicioAutoresV1.Filtrar(autorFiltroDTO);           
+        }             
+
+        [HttpPost(Name = "CrearAutorV1")]
         public async Task<ActionResult> Post(AutorCreacionDTO autorCreacionDTO)
         {
             return await _servicioAutoresV1.AnadirAutor(autorCreacionDTO);
         }
 
-        [HttpPost("autor-con-foto")]
+        [HttpPost("autor-con-foto", Name = "CrearAutorConFotoV1")]
         public async Task<ActionResult> PostConFoto([FromForm] AutorCreacionConFotoDTO autorCreacionDTO)
         {
             return await _servicioAutoresV1.AnadirAutorConFoto(autorCreacionDTO);
         }
 
-        [HttpPut("{id:int}")] //Put/api/autores/{id}
+        [HttpPut("{id:int}", Name = "ActualizarAutorV1")] //Put/api/autores/{id}
         public async Task<ActionResult> Put(int id, [FromForm] AutorCreacionConFotoDTO autorCreacionDTO)
         {
             return await _servicioAutoresV1.ActualizarAutor(id, autorCreacionDTO);
         }
 
-        [HttpPatch("{id:int}")]
+        [HttpPatch("{id:int}", Name = "PatchAutorV1")]
         public async Task<ActionResult> Patch(int id, JsonPatchDocument<AutorPatchDTO> patchDoc)
         {
             if (patchDoc is null)
@@ -105,7 +105,7 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioAutoresV1.PatchAutor(autorDB, autorPatchDTO);
         }
 
-        [HttpDelete("{id:int}")] //Put/api/autores/{id}
+        [HttpDelete("{id:int}", Name = "BorrarAutorV1")] //Put/api/autores/{id}
         public async Task<ActionResult> Delete(int id)
         {
             return await _servicioAutoresV1.BorrarAutor(id);

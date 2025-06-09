@@ -3,6 +3,8 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils;
+using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +42,7 @@ namespace BibliotecasAPI.Controllers.V1
             _mapper = mapper;
         }
 
-        [HttpPost("registro")]
+        [HttpPost("registro", Name = "RegistrarV1")]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
@@ -53,7 +55,7 @@ namespace BibliotecasAPI.Controllers.V1
             var resultado = await _userManager.CreateAsync(usuario, credencialesUsuarioDTO!.Password!);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
+                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
                 return respuestaAutenticacion;
             }
             else
@@ -66,7 +68,7 @@ namespace BibliotecasAPI.Controllers.V1
             }
         }
 
-        [HttpPost("login")]
+        [HttpPost("login", Name = "LoginV1")]
         [AllowAnonymous]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
@@ -75,22 +77,22 @@ namespace BibliotecasAPI.Controllers.V1
 
             if (usuario is null)
             {
-                return RetornarLoginIncorrecto();   
+                return ModelState.RetornarLoginIncorrecto();   
             }
 
             var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, credencialesUsuarioDTO!.Password!, lockoutOnFailure: false);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
+                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
                 return respuestaAutenticacion;
             }
             else
             {
-                return RetornarLoginIncorrecto();
+                return ModelState.RetornarLoginIncorrecto();
             }
         }
 
-        [HttpGet]
+        [HttpGet(Name = "ObtenerUsuariosV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult<IEnumerable<UsuarioDTO>>> Get()
         {
@@ -99,7 +101,7 @@ namespace BibliotecasAPI.Controllers.V1
             return Ok(usuariosDTO);
         }
 
-        [HttpPut]
+        [HttpPut(Name = "ActualizarUsuarioV1")]
         [Authorize]
         public async Task<ActionResult> Put(ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
@@ -116,7 +118,7 @@ namespace BibliotecasAPI.Controllers.V1
             return NoContent();
         }
 
-        [HttpGet("renovar-token")]
+        [HttpGet("renovar-token", Name = "RenovarTokenV1")]
         [Authorize]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> RenovarToken()
         {
@@ -125,13 +127,13 @@ namespace BibliotecasAPI.Controllers.V1
             {
                 return NotFound();
             }
-            var credencialesUsuarioDTo = new CredencialesUsuarioDTO { Email = usuario.Email! };
+            var credencialesUsuarioDTO = new CredencialesUsuarioDTO { Email = usuario.Email! };
 
-            var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTo);
+            var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
             return respuestaAutenticacion;
         }
 
-        [HttpPost("hacer-admin")]
+        [HttpPost("hacer-admin", Name = "HacerAdminV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
@@ -146,7 +148,7 @@ namespace BibliotecasAPI.Controllers.V1
             return NoContent();
         }
 
-        [HttpPost("quitar-admin")]
+        [HttpPost("quitar-admin", Name = "QuitarAdminV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> QuitarAdmin(EditarClaimDTO editarClaimDTO)
         {
@@ -159,40 +161,6 @@ namespace BibliotecasAPI.Controllers.V1
 
             await _userManager.RemoveClaimAsync(usuario, new Claim("esAdmin", "true"));
             return NoContent();
-        }
-
-        private ActionResult RetornarLoginIncorrecto()
-        {
-            ModelState.AddModelError(string.Empty, "Login Incorrecto");
-            return ValidationProblem();
-        }
-
-        private async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuarioDTO)
-        {
-            var claims = new List<Claim> 
-            {
-                new Claim("email", credencialesUsuarioDTO.Email),
-                new Claim("almudena", "rosi")
-            };
-
-            var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
-            var claimsDB = await _userManager.GetClaimsAsync(usuario!);
-            claims.AddRange(claimsDB);
-
-            var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["LlaveJWT"]!));
-            var credenciales = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
-
-            var expiracion = DateTime.UtcNow.AddYears(1);
-
-            var tokenDeSeguridad = new JwtSecurityToken(issuer: null, audience: null,
-                claims: claims, expires: expiracion, signingCredentials: credenciales);
-
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenDeSeguridad);
-            return new RespuestaAutenticacionDTO
-            {
-                Token = token,
-                FechaExpiracion = expiracion,
-            };
         }
     }
 }

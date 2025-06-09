@@ -53,7 +53,7 @@ namespace BibliotecasAPI.Controllers.V2
             return autoresDTO;
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CrearAutoresV2")]
         public async Task<ActionResult> Post(IEnumerable<AutorCreacionDTO> autoresCreacionDTO)
         {
             var autores = _mapper.Map<IEnumerable<Autor>>(autoresCreacionDTO);

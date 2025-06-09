@@ -14,5 +14,15 @@ namespace BibliotecasAPI.Utils.Extensions
             };
             return new BadRequestObjectResult(problemDetails);
         }
+
+        public static BadRequestObjectResult RetornarLoginIncorrecto(this ModelStateDictionary modelState)
+        {
+            var problemDetails = new ValidationProblemDetails(modelState)
+            {
+                Title = "Login Incorrecto.",
+                Status = StatusCodes.Status400BadRequest
+            };
+            return new BadRequestObjectResult(problemDetails);
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioAutoresColeccion.ObtenerAutoresPorIds(ids);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CrearAutoresV1")]
         public async Task<ActionResult> Post(IEnumerable<AutorCreacionDTO> autoresCreacionDTO)
         {
             return await _servicioAutoresColeccion.AnadirVariosAutores(autoresCreacionDTO);

@@ -34,7 +34,7 @@ namespace BibliotecasAPI.Controllers.V1
             _servicioComentarios = servicioComentarios;
         }
 
-        [HttpGet] // api/libros/libroId/comentarios
+        [HttpGet(Name = "ObtenerComentariosDeLibroV1")] // api/libros/libroId/comentarios
         [AllowAnonymous]
         [OutputCache(Tags = [CACHE_COMENTARIOS])]
         public async Task<ActionResult<IEnumerable<ComentarioDTO>>> Get(int libroId)
@@ -50,19 +50,19 @@ namespace BibliotecasAPI.Controllers.V1
             return await _servicioComentarios.GetComentarioPorId(id);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CrearComentarioV1")]
         public async Task<ActionResult> Post(int libroId, ComentarioCreacionDTO comentarioCreacionDTO)
         {
             return await _servicioComentarios.AnadirComentario(libroId, comentarioCreacionDTO);
         }
 
-        [HttpPut("{id:int}")] //Put/api/autores/{id}
+        [HttpPut("{id:int}", Name = "ActualizarComentarioV1")] //Put/api/autores/{id}
         public async Task<ActionResult> Put(int id, AutorCreacionDTO autorCreacionDTO)
         {
             return await _servicioComentarios.ActualizarComentario(id, autorCreacionDTO);
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}", Name = "PatchComentarioV1")]
         public async Task<ActionResult> Patch(Guid id, int libroId, JsonPatchDocument<ComentarioPatchDTO> patchDoc)
         {
             if (patchDoc is null)
@@ -104,7 +104,7 @@ namespace BibliotecasAPI.Controllers.V1
         }
 
 
-        [HttpDelete("{id}")] //Put/api/autores/{id}
+        [HttpDelete("{id}", Name = "BorrarComentarioV1")] //Put/api/autores/{id}
         public async Task<ActionResult> Delete(Guid id, int libroId)
         {
             return await _servicioComentarios.BorradoLogicoComentario(id, libroId);
