@@ -4,7 +4,9 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
+using BibliotecasAPI.Utils;
 using BibliotecasAPI.Utils.Filters;
+using BibliotecasAPI.Utils.Filters.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +26,7 @@ namespace BibliotecasAPI.Controllers.V1
         private readonly IServicioAutores _servicioAutoresV1;
 
         public AutoresController(ApplicationDbContext context, IMapper mapper,
-            IAlmacenadorArchivos almacenadorArchivos, ILogger<AutoresController> logger,
-            IOutputCacheStore outputCacheStore, IServicioAutores servicioAutoresV1)
+               IServicioAutores servicioAutoresV1)
         {
             _context = context;
             _mapper = mapper;
@@ -36,7 +37,8 @@ namespace BibliotecasAPI.Controllers.V1
         [AllowAnonymous]
         //[OutputCache(Tags = [CACHE_AUTORES])]
         [ServiceFilter<MiFiltroDeAccion>()]
-        [FiltroAgregarCabeceras("accion", "get")]
+        [ServiceFilter<HateoasAutoresAttribute>()]
+        [FiltroAgregarCabeceras("accion", "get")]        
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             return await _servicioAutoresV1.GetAutores(paginacionDTO);
@@ -47,6 +49,7 @@ namespace BibliotecasAPI.Controllers.V1
         [EndpointDescription("Obtiene autor por id. Incluye sus libros. Si el autor no existe, se retorna 404")]
         [ProducesResponseType<AutorConLibrosDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ServiceFilter<HateoasAutorAttribute>()]
         [AllowAnonymous]
         [OutputCache]
         public async Task<ActionResult<AutorConLibrosDTO>> Get(int id)

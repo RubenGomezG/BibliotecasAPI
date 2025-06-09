@@ -9,6 +9,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Filters;
+using BibliotecasAPI.Utils.Filters.V1;
 using BibliotecasAPI.Utils.Middlewares;
 using BibliotecasAPI.Utils.Swagger;
 using Microsoft.AspNetCore.Identity;
@@ -62,6 +63,9 @@ builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
 builder.Services.AddScoped<MiFiltroDeAccion>();
 builder.Services.AddScoped<FiltroValidacionLibro>();
+builder.Services.AddScoped<IGeneradorEnlaces, GeneradorEnlaces>();
+builder.Services.AddScoped<HateoasAutorAttribute>();
+builder.Services.AddScoped<HateoasAutoresAttribute>();
 
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IServicioAutores, ServicioAutores>();
