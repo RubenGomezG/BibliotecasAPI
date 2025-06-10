@@ -3,7 +3,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
-using BibliotecasAPI.Utils;
+using BibliotecasAPI.Utils.ClassUtils;
 using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

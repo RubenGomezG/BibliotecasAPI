@@ -48,7 +48,6 @@ builder.Services.AddCors(opciones =>
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers(opciones =>
 {
-    opciones.Filters.Add<FiltroTiempoEjecucion>();
     opciones.Conventions.Add(new ConvencionAgrupaPorVersion());
 }).AddNewtonsoftJson();
 
@@ -61,7 +60,6 @@ builder.Services.AddIdentityCore<Usuario>()
 
 builder.Services.AddScoped<UserManager<Usuario>>();
 builder.Services.AddScoped<SignInManager<Usuario>>();
-builder.Services.AddScoped<MiFiltroDeAccion>();
 builder.Services.AddScoped<FiltroValidacionLibro>();
 builder.Services.AddScoped<IGeneradorEnlaces, GeneradorEnlaces>();
 builder.Services.AddScoped<HateoasAutorAttribute>();

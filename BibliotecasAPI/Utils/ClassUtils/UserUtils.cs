@@ -6,7 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BibliotecasAPI.Utils
+namespace BibliotecasAPI.Utils.ClassUtils
 {
     public static class UserUtils
     {

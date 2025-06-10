@@ -26,7 +26,7 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
             return await _repositorioAutores.Filtrar(autorFiltroDTO);
         }
 
-        public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorId(int id)
+        public async Task<AutorConLibrosDTO> GetAutorPorId(int id)
         {
             return await _repositorioAutores.GetAutorPorId(id);
         }

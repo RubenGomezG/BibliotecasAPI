@@ -39,6 +39,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             _almacenadorArchivos = almacenadorArchivos;
         }
 
+        [OutputCache(Tags = [CACHE_AUTORES])]
         public async Task<IEnumerable<AutorDTO>> GetAutores(PaginacionDTO paginacionDTO)
         {
             var queryable = _context.Autores.Include(a => a.Libros).AsQueryable();
@@ -137,7 +138,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
         }
 
-        public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorId(int id)
+        public async Task<AutorConLibrosDTO> GetAutorPorId(int id)
         {
             var autor = await _context.Autores
                 .Include(a => a.Libros)
@@ -146,11 +147,11 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
             if (autor is null)
             {
-                return new NotFoundResult();
+                return null;
             }
 
             var autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
-            return new OkObjectResult(autorDTO);
+            return autorDTO;
         }
 
         public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorIdV2(int id, bool incluirLibros = false)
