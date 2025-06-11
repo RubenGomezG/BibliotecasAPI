@@ -5,18 +5,19 @@ namespace BibliotecasAPI.Utils.Extensions
 {
     public static class ModelStateDictionaryExtensions
     {
-        public static BadRequestObjectResult ContruirProblemDetail(this ModelStateDictionary modelState)
+        public static BadRequestObjectResult ContruirProblemDetail(this ModelStateDictionary modelState, string error)
         {
             var problemDetails = new ValidationProblemDetails(modelState)
             {
-                Title = "One or more validation errors occurred.",
+                Title = error,
                 Status = StatusCodes.Status400BadRequest
             };
             return new BadRequestObjectResult(problemDetails);
         }
 
-        public static BadRequestObjectResult RetornarLoginIncorrecto(this ModelStateDictionary modelState)
+        public static ActionResult RetornarLoginIncorrecto(this ModelStateDictionary modelState)
         {
+            modelState.AddModelError(string.Empty, "Login incorrecto.");
             var problemDetails = new ValidationProblemDetails(modelState)
             {
                 Title = "Login Incorrecto.",

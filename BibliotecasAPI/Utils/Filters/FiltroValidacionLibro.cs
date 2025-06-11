@@ -9,6 +9,7 @@ namespace BibliotecasAPI.Utils.Filters
     public class FiltroValidacionLibro : IAsyncActionFilter
     {
         private readonly ApplicationDbContext _dbContext;
+        private const string ERROR_NO_LIBROS_SIN_AUTOR = "No se puede crear un libro sin autores";
 
         public FiltroValidacionLibro(ApplicationDbContext dbContext)
         {
@@ -19,14 +20,14 @@ namespace BibliotecasAPI.Utils.Filters
             if (!context.ActionArguments.TryGetValue("libroCreacionDTO", out var value) ||
                 value is not LibroCreacionDTO libroCreacionDTO)
             {
-                context.ModelState.AddModelError(string.Empty, "No se puede crear un libro sin autores");
-                context.Result = context.ModelState.ContruirProblemDetail();
+                context.ModelState.AddModelError(string.Empty, ERROR_NO_LIBROS_SIN_AUTOR);
+                context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
             if (libroCreacionDTO.AutoresIds is null || libroCreacionDTO.AutoresIds.Count == 0)
             {
-                context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), "No se puede crear un libro sin autores");
-                context.Result = context.ModelState.ContruirProblemDetail();
+                context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), ERROR_NO_LIBROS_SIN_AUTOR);
+                context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
 
@@ -39,7 +40,7 @@ namespace BibliotecasAPI.Utils.Filters
             {
                 var autoresNoExisten = libroCreacionDTO.AutoresIds.Except(autoresIdsExisten);
                 context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), $"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
-                context.Result = context.ModelState.ContruirProblemDetail();
+                context.Result = context.ModelState.ContruirProblemDetail($"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
                 return;
             }
 

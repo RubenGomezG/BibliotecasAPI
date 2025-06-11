@@ -4,6 +4,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
+using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils;
 using BibliotecasAPI.Utils.Filters;
 using BibliotecasAPI.Utils.Filters.V1;
@@ -23,13 +24,17 @@ namespace BibliotecasAPI.Controllers.V1
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IServicioAutores _servicioAutoresV1;
+        private readonly IOutputCacheStore _outputCacheStore;
+        private const string CACHE_AUTORES = "autores-obtener";
 
         public AutoresController(ApplicationDbContext context, IMapper mapper,
-               IServicioAutores servicioAutoresV1)
+               IServicioAutores servicioAutoresV1,
+               IOutputCacheStore outputCacheStore)
         {
             _context = context;
             _mapper = mapper;
             _servicioAutoresV1 = servicioAutoresV1;
+            _outputCacheStore = outputCacheStore;
         }
         
         [HttpGet(Name = "ObtenerAutoresV1")] // api/autores
@@ -107,7 +112,10 @@ namespace BibliotecasAPI.Controllers.V1
                 return ValidationProblem();
             }
 
-            return await _servicioAutoresV1.PatchAutor(autorDB, autorPatchDTO);
+            _mapper.Map(autorPatchDTO, autorDB);
+            await _context.SaveChangesAsync();
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
+            return new NoContentResult();
         }
 
         [HttpDelete("{id:int}", Name = "BorrarAutorV1")] //Put/api/autores/{id}

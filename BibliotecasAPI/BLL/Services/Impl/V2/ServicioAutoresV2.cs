@@ -47,11 +47,6 @@ namespace BibliotecasAPI.BLL.Services.Impl.V2
             return await _repositorioAutores.ActualizarAutor(id, autorCreacionDTO);
         }
 
-        public async Task<ActionResult> PatchAutor(Autor autorDB, AutorPatchDTO autorPatchDTO)
-        {
-            return await _repositorioAutores.PatchAutor(autorDB, autorPatchDTO);
-        }
-
         public async Task<ActionResult> BorrarAutor(int id)
         {
             return await _repositorioAutores.BorrarAutor(id);

@@ -14,7 +14,6 @@ namespace BibliotecasAPI.BLL.Repositories.Interfaces
         public Task<ActionResult> AnadirAutor(AutorCreacionDTO autorCreacionDTO);
         public Task<ActionResult> AnadirAutorConFoto(AutorCreacionConFotoDTO autorCreacionDTO);
         public Task<ActionResult> ActualizarAutor(int id, AutorCreacionConFotoDTO autorCreacionDTO);
-        public Task<ActionResult> PatchAutor(Autor autorDB, AutorPatchDTO autorPatchDTO);
         public Task<ActionResult> BorrarAutor(int id);
     }
 }

@@ -226,13 +226,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             return new NotFoundResult();
         }
 
-        public async Task<ActionResult> PatchAutor(Autor autorDB, AutorPatchDTO autorPatchDTO)
-        {
-            _mapper.Map(autorPatchDTO, autorDB);
-            await _context.SaveChangesAsync();
-            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
-            return new NoContentResult();
-        }
+        
 
         public async Task<ActionResult> BorrarAutor(int id)
         {

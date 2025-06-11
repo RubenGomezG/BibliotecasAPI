@@ -7,6 +7,8 @@ using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Tests.TestUtils;
 using BibliotecasAPI.Tests.TestUtils.Dobles;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
@@ -221,6 +223,49 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
             Assert.AreEqual(expected: urlNueva, actual: actorActualizado.Foto);
             await outputCacheStore.Received(1).EvictByTagAsync(CACHE_AUTORES, default);
             await almacenadorArchivos.Received(1).Editar(urlAnterior, CONTENEDOR, formFile);
+        }
+
+        [TestMethod]
+        public async Task BorrarAutor_Retorna404_CuandoAutorNoExiste()
+        {
+            //Prueba
+            var respuesta = await repositorio.BorrarAutor(1);
+
+            //Verificación
+
+            var resultado = respuesta as StatusCodeResult;
+            Assert.AreEqual(404, resultado!.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task BorrarAutor_BorraAutor_CuandoAutorExiste()
+        {
+            //Preparación
+            var context = ConstruirContext(nombreBD);
+
+            var urlFoto = "URL-1";
+
+            context.Autores.Add(new Autor{ Nombre = "Rosi", Apellidos = "Rosez", Foto = urlFoto });
+            context.Autores.Add(new Autor{ Nombre = "Rosi2", Apellidos = "Rosez2" });
+
+            await context.SaveChangesAsync();
+            //Prueba
+            var respuesta = await repositorio.BorrarAutor(1);
+
+            //Verificación
+
+            var resultado = respuesta as StatusCodeResult;
+            Assert.AreEqual(204, resultado!.StatusCode);
+
+            var context2 = ConstruirContext(nombreBD);
+            var cantidadAutores = await context2.Autores.CountAsync();
+            Assert.AreEqual(1, cantidadAutores);
+
+            var autor2Existe = await context2.Autores.AnyAsync(autor => autor.Nombre == "Rosi2");
+            Assert.IsTrue(autor2Existe);
+
+            await outputCacheStore.Received(1).EvictByTagAsync(CACHE_AUTORES, default);
+            await almacenadorArchivos.Received(1).Borrar(urlFoto, CONTENEDOR);
         }
     }
 }
