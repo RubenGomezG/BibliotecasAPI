@@ -201,7 +201,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
 
             var autorDTO = _mapper.Map<AutorDTO>(autor);
-            return new CreatedAtRouteResult("ObtenerAutorV1", new { id = autorDTO.Id }, autorDTO);
+            return new CreatedAtRouteResult("ObtenerAutorPorIdV1", new { id = autorDTO.Id }, autorDTO);
         }
 
         public async Task<ActionResult> ActualizarAutor(int id, AutorCreacionConFotoDTO autorCreacionDTO)

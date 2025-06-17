@@ -72,7 +72,7 @@ builder.Services.AddTransient<IServicioComentarios, ServicioComentarios>();
 builder.Services.AddTransient<IServicioAutoresColeccion, ServicioAutoresColeccion>();
 builder.Services.AddTransient<IServicioLibros, ServicioLibros>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
-builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+//builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
 
 builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
 builder.Services.AddTransient<IRepositorioAutores, RepositorioAutores>();

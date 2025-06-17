@@ -38,7 +38,7 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
 
         public async Task<ActionResult> AnadirAutorConFoto(AutorCreacionConFotoDTO autorCreacionDTO)
         {
-            return await AnadirAutorConFoto(autorCreacionDTO);
+            return await _repositorioAutores.AnadirAutorConFoto(autorCreacionDTO);
         }
 
         public async Task<ActionResult> ActualizarAutor(int id, AutorCreacionConFotoDTO autorCreacionDTO)
