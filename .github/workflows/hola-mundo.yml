@@ -23,6 +23,5 @@ jobs:
       - uses: actions/checkout@v4.2.2
 
       - name: listar los archivos del repositorio
-      - run:   
-          echo "El repositorio ${{ github.repository}} contiene los siguientes archivos:"
-          tree
+      - run:  echo "El repositorio ${{ github.repository}} contiene los siguientes archivos:"
+              tree
