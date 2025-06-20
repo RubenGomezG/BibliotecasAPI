@@ -186,7 +186,11 @@ app.UseSwaggerUI(opciones =>
     opciones.SwaggerEndpoint("/swagger/v2/swagger.json", "Biblioteca API V2");
 });
 
-app.UseStaticFiles();
+var wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (Directory.Exists(wwwRootPath))
+{
+    app.UseStaticFiles();
+}
 
 app.UseCors();
 app.UseLimitarPeticiones();
