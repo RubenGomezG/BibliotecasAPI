@@ -43,10 +43,12 @@ namespace BibliotecasAPI.BLL.Jobs
 
                 if (!facturasYaEmitidas)
                 {
-                    var fechaInicio = new DateTime(fechaComparacion.Year, fechaComparacion.Month, 1);
-                    var fechaFin = fechaInicio.AddMonths(1);
-
-                    await context.Database.ExecuteSqlAsync($"EXEC Facturas_Crear {fechaInicio.ToString("yyyy-MM-dd")}, {fechaFin.ToString("yyyy-MM-dd")}");
+                    if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.SqlServer")
+                    {
+                        var fechaInicio = new DateTime(fechaComparacion.Year, fechaComparacion.Month, 1);
+                        var fechaFin = fechaInicio.AddMonths(1);
+                        await context.Database.ExecuteSqlAsync($"EXEC Facturas_Crear {fechaInicio.ToString("yyyy-MM-dd")}, {fechaFin.ToString("yyyy-MM-dd")}");
+                    }
                 }
             }
         }
