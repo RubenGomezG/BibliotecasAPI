@@ -25,6 +25,8 @@ namespace BibliotecasAPI.DAL.Datos
         public DbSet<Peticion> Peticiones { get; set; }
         public DbSet<RestriccionDominio> RestriccionesDominio { get; set; }
         public DbSet<RestriccionIp> RestriccionesIp { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
+        public DbSet<FacturaEmitida> FacturasEmitidas { get; set; }
 
     }
 }

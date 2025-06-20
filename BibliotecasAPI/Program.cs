@@ -1,3 +1,4 @@
+using BibliotecasAPI.BLL.Jobs;
 using BibliotecasAPI.BLL.Repositories.Impl;
 using BibliotecasAPI.BLL.Repositories.Interfaces;
 using BibliotecasAPI.BLL.Services.Impl;
@@ -66,6 +67,7 @@ builder.Services.AddScoped<FiltroValidacionLibro>();
 builder.Services.AddScoped<IGeneradorEnlaces, GeneradorEnlaces>();
 builder.Services.AddScoped<HateoasAutorAttribute>();
 builder.Services.AddScoped<HateoasAutoresAttribute>();
+builder.Services.AddHostedService<FacturasBackgroundService>();
 
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioLlaves, ServicioLlaves>();

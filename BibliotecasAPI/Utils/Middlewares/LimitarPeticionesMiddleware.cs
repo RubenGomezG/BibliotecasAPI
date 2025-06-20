@@ -119,6 +119,7 @@ namespace BibliotecasAPI.Utils.Middlewares
             var llaveDB = await dbContext.LlavesAPI
                 .Include(llave => llave.RestriccionesDominio)
                 .Include(llave => llave.RestriccionesIp)
+                .Include(llave => llave.Usuario)
                 .FirstOrDefaultAsync(x => x.Llave == llave);
 
             if (llaveDB == null)
@@ -152,6 +153,12 @@ namespace BibliotecasAPI.Utils.Middlewares
                     await httpContext.Response.WriteAsync("Ha excedido el límite de peticiones por hoy. Si desea poder realizar más, actualice a nivel profesional");
                     return null!;
                 }
+            }
+            else if (llaveDB.Usuario!.TieneDeuda)
+            {
+                httpContext.Response.StatusCode = 400;
+                await httpContext.Response.WriteAsync("Debe pagar su suscripción profesional para obtener sus beneficios.");
+                return null!;
             }
 
             return llaveDB;

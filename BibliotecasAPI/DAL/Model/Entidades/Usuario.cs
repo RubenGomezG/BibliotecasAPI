@@ -5,5 +5,6 @@ namespace BibliotecasAPI.DAL.Model.Entidades
     public class Usuario : IdentityUser
     {
         public DateTime FechaNacimiento { get; set; }
+        public bool TieneDeuda { get; set; }
     }
 }
