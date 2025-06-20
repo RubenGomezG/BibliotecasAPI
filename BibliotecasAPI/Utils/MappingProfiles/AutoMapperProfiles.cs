@@ -2,6 +2,7 @@
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
+using BibliotecasAPI.DAL.DTOs.LlaveDTOs;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 
@@ -47,6 +48,7 @@ namespace BibliotecasAPI.Utils.MappingProfiles
             CreateMap<Comentario, ComentarioConLibroDTO>();
             CreateMap<Comentario, ComentarioPatchDTO>().ReverseMap();
             CreateMap<Usuario, UsuarioDTO>();            
+            CreateMap<LlaveAPI, LlaveDTO>();            
         }
 
         private string MapearNombreCompletoAutor(Autor autor) => $"{autor!.Nombre} {autor!.Apellidos}";

@@ -21,7 +21,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
     {
         private UserManager<Usuario> userManager = null!;
         private IHttpContextAccessor httpContextAccessor = null!;
-        private IRepositorioUsuarios repositorio;
+        private IRepositorioUsuarios repositorioUsuarios = null!;
 
         [TestInitialize]
         public void Setup()
@@ -30,7 +30,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
             userManager = Substitute.For<UserManager<Usuario>>(
                 Substitute.For<IUserStore<Usuario>>(), null, null, null, null, null, null, null, null);
 
-            repositorio = new RepositorioUsuarios(userManager, httpContextAccessor);
+            repositorioUsuarios = new RepositorioUsuarios(userManager, httpContextAccessor);
         }
 
         [TestMethod]
@@ -41,7 +41,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
             httpContextAccessor.HttpContext.Returns(httpContext);
 
             //Prueba
-            var usuario = await repositorio.ObtenerUsuario();
+            var usuario = await repositorioUsuarios.ObtenerUsuario();
 
             //Verificación
 
@@ -66,7 +66,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
             httpContextAccessor.HttpContext.Returns(httpContext);
 
             //Prueba
-            var usuario = await repositorio.ObtenerUsuario();
+            var usuario = await repositorioUsuarios.ObtenerUsuario();
 
             //Verificación
 

@@ -30,6 +30,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         private SignInManager<Usuario> signInManager = null!;
         private UsuariosController controller = null!;
         private IServicioUsuarios servicioUsuarios = null!;
+        private IServicioLlaves servicioLlaves = null!;
         private IMapper mapper = null!;
 
         [TestInitialize]
@@ -54,11 +55,12 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
 
             httpContextAccessor = Substitute.For<IHttpContextAccessor>();
             servicioUsuarios = Substitute.For<IServicioUsuarios>();
+            servicioLlaves = Substitute.For<IServicioLlaves>();
             var userClaimsFactory = Substitute.For<IUserClaimsPrincipalFactory<Usuario>>();
             signInManager = Substitute.For<SignInManager<Usuario>>(userManager, httpContextAccessor,
                 userClaimsFactory, null, null, null, null);
 
-            controller = new UsuariosController(userManager, configuration, signInManager, servicioUsuarios, context, mapper);
+            controller = new UsuariosController(userManager, configuration, signInManager, servicioUsuarios, context, mapper, servicioLlaves);
         }
 
         [TestMethod]

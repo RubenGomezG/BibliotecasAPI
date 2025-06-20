@@ -7,5 +7,6 @@ namespace BibliotecasAPI.BLL.Services.Interfaces.V1
     public interface IServicioUsuarios
     {
         Task<Usuario?> ObtenerUsuario();
+        string? ObtenerUsuarioId();
     }
 }

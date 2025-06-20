@@ -4,6 +4,7 @@ using BibliotecasAPI.DAL.Datos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BibliotecasAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250620073308_AnadidasTablasRestricciones")]
+    partial class AnadidasTablasRestricciones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,12 +207,15 @@ namespace BibliotecasAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("LlaveAPIId")
+                        .HasColumnType("int");
+
                     b.Property<int>("LlaveId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LlaveId");
+                    b.HasIndex("LlaveAPIId");
 
                     b.ToTable("RestriccionesDominio");
                 });
@@ -226,12 +232,15 @@ namespace BibliotecasAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("LlaveAPIId")
+                        .HasColumnType("int");
+
                     b.Property<int>("LlaveId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LlaveId");
+                    b.HasIndex("LlaveAPIId");
 
                     b.ToTable("RestriccionesIp");
                 });
@@ -499,24 +508,20 @@ namespace BibliotecasAPI.Migrations
 
             modelBuilder.Entity("BibliotecasAPI.DAL.Model.Entidades.RestriccionDominio", b =>
                 {
-                    b.HasOne("BibliotecasAPI.DAL.Model.Entidades.LlaveAPI", "Llave")
-                        .WithMany("RestriccionesDominio")
-                        .HasForeignKey("LlaveId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("BibliotecasAPI.DAL.Model.Entidades.LlaveAPI", "LlaveAPI")
+                        .WithMany()
+                        .HasForeignKey("LlaveAPIId");
 
-                    b.Navigation("Llave");
+                    b.Navigation("LlaveAPI");
                 });
 
             modelBuilder.Entity("BibliotecasAPI.DAL.Model.Entidades.RestriccionIp", b =>
                 {
-                    b.HasOne("BibliotecasAPI.DAL.Model.Entidades.LlaveAPI", "Llave")
-                        .WithMany("RestriccionesIp")
-                        .HasForeignKey("LlaveId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("BibliotecasAPI.DAL.Model.Entidades.LlaveAPI", "LlaveAPI")
+                        .WithMany()
+                        .HasForeignKey("LlaveAPIId");
 
-                    b.Navigation("Llave");
+                    b.Navigation("LlaveAPI");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -580,13 +585,6 @@ namespace BibliotecasAPI.Migrations
                     b.Navigation("Autores");
 
                     b.Navigation("Comentarios");
-                });
-
-            modelBuilder.Entity("BibliotecasAPI.DAL.Model.Entidades.LlaveAPI", b =>
-                {
-                    b.Navigation("RestriccionesDominio");
-
-                    b.Navigation("RestriccionesIp");
                 });
 #pragma warning restore 612, 618
         }

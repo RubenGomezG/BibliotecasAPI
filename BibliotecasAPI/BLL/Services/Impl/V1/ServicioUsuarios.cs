@@ -1,4 +1,5 @@
-﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
+﻿using BibliotecasAPI.BLL.Repositories.Interfaces;
+using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Identity;
 
@@ -6,27 +7,21 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
 {
     public class ServicioUsuarios : IServicioUsuarios
     {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRepositorioUsuarios _repositorioUsuarios;
 
-        public ServicioUsuarios(UserManager<Usuario> userManager, IHttpContextAccessor contextAccessor)
+        public ServicioUsuarios(IRepositorioUsuarios repositorioUsuarios)
         {
-            _userManager = userManager;
-            _contextAccessor = contextAccessor;
+            _repositorioUsuarios = repositorioUsuarios;
         }
 
         public async Task<Usuario?> ObtenerUsuario()
         {
-            var emailClaim = _contextAccessor.HttpContext!
-                .User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+            return await _repositorioUsuarios.ObtenerUsuario();
+        }
 
-            if (emailClaim == null)
-            {
-                return null;
-            }
-
-            var email = emailClaim.Value;
-            return await _userManager.FindByEmailAsync(email);
+        public string? ObtenerUsuarioId()
+        {
+            return _repositorioUsuarios.ObtenerUsuarioId();
         }
     }
 }

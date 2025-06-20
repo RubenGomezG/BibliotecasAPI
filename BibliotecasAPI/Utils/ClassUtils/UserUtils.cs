@@ -11,12 +11,12 @@ namespace BibliotecasAPI.Utils.ClassUtils
     public static class UserUtils
     {
         public static async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuarioDTO,
-            IConfiguration configuration, UserManager<Usuario> _userManager)
+            IConfiguration configuration, UserManager<Usuario> _userManager, string usuarioId)
         {
             var claims = new List<Claim>
             {
                 new Claim("email", credencialesUsuarioDTO.Email),
-                new Claim("almudena", "rosi")
+                new Claim("usuarioId", usuarioId)
             };
 
             var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);

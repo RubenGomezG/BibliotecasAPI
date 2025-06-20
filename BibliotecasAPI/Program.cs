@@ -7,7 +7,9 @@ using BibliotecasAPI.BLL.Services.Interfaces;
 using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.Datos;
+using BibliotecasAPI.DAL.DTOs.PeticionDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Extensions;
 using BibliotecasAPI.Utils.Filters;
 using BibliotecasAPI.Utils.Filters.V1;
 using BibliotecasAPI.Utils.Middlewares;
@@ -66,6 +68,7 @@ builder.Services.AddScoped<HateoasAutorAttribute>();
 builder.Services.AddScoped<HateoasAutoresAttribute>();
 
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddScoped<IServicioLlaves, ServicioLlaves>();
 builder.Services.AddTransient<IServicioAutores, ServicioAutores>();
 builder.Services.AddTransient<IServicioAutoresV2, ServicioAutoresV2>();
 builder.Services.AddTransient<IServicioComentarios, ServicioComentarios>();
@@ -79,6 +82,7 @@ builder.Services.AddTransient<IRepositorioAutores, RepositorioAutores>();
 builder.Services.AddTransient<IRepositorioAutoresColeccion, RepositorioAutoresColeccion>();
 builder.Services.AddTransient<IRepositorioComentarios, RepositorioComentarios>();
 builder.Services.AddTransient<IRepositorioLibros, RepositorioLibros>();
+builder.Services.AddScoped<IRepositorioLlaves, RepositorioLlaves>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication().AddJwtBearer(opciones =>
@@ -162,6 +166,12 @@ builder.Services.AddSwaggerGen(opciones =>
     //    }
     //});
 });
+
+builder.Services.AddOptions<LimitarPeticionesDTO>()
+    .Bind(builder.Configuration.GetSection(LimitarPeticionesDTO.Seccion))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 var app = builder.Build();
 
 //área de middlewares
@@ -177,6 +187,7 @@ app.UseSwaggerUI(opciones =>
 app.UseStaticFiles();
 
 app.UseCors();
+app.UseLimitarPeticiones();
 app.UseOutputCache();
 app.MapControllers();
 

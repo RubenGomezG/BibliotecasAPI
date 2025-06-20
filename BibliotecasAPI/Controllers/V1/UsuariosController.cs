@@ -3,6 +3,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Attributes;
 using BibliotecasAPI.Utils.ClassUtils;
 using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +19,7 @@ namespace BibliotecasAPI.Controllers.V1
 {
     [ApiController]
     [Route("api/v1/usuarios")]
+    [DeshabilitarLimitePeticiones]
     public class UsuariosController : ControllerBase
     {
         private readonly UserManager<Usuario> _userManager;
@@ -26,13 +28,15 @@ namespace BibliotecasAPI.Controllers.V1
         private readonly IServicioUsuarios _servicioUsuarios;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IServicioLlaves _servicioLlaves;
 
         public UsuariosController(UserManager<Usuario> userManager,
             IConfiguration configuration,
             SignInManager<Usuario> signInManager,
             IServicioUsuarios servicioUsuarios,
             ApplicationDbContext context,
-            IMapper mapper)
+            IMapper mapper,
+            IServicioLlaves servicioLlaves)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -40,6 +44,7 @@ namespace BibliotecasAPI.Controllers.V1
             _servicioUsuarios = servicioUsuarios;
             _context = context;
             _mapper = mapper;
+            _servicioLlaves = servicioLlaves;
         }
 
         [HttpPost("registro", Name = "RegistrarV1")]
@@ -55,7 +60,8 @@ namespace BibliotecasAPI.Controllers.V1
             var resultado = await _userManager.CreateAsync(usuario, credencialesUsuarioDTO!.Password!);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
+                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
+                await _servicioLlaves.CrearLlave(usuario.Id, TipoLlave.Gratuita);
                 return respuestaAutenticacion;
             }
             else
@@ -83,7 +89,7 @@ namespace BibliotecasAPI.Controllers.V1
             var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, credencialesUsuarioDTO!.Password!, lockoutOnFailure: false);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
+                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
                 return respuestaAutenticacion;
             }
             else
@@ -129,7 +135,7 @@ namespace BibliotecasAPI.Controllers.V1
             }
             var credencialesUsuarioDTO = new CredencialesUsuarioDTO { Email = usuario.Email! };
 
-            var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager);
+            var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
             return respuestaAutenticacion;
         }
 

@@ -14,6 +14,20 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             _userManager = userManager;
             _contextAccessor = contextAccessor;
         }
+
+        public string? ObtenerUsuarioId()
+        {
+            var idClaim = _contextAccessor.HttpContext!
+                .User.Claims.Where(claim => claim.Type == "usuarioId").FirstOrDefault();
+
+            if (idClaim == null)
+            {
+                return null;
+            }
+            var id = idClaim.Value;
+            return id;
+        }
+
         public async Task<Usuario?> ObtenerUsuario()
         {
             var emailClaim = _contextAccessor.HttpContext!
