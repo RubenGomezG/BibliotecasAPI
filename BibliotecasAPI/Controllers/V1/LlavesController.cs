@@ -36,7 +36,12 @@ namespace BibliotecasAPI.Controllers.V1
         public async Task<IEnumerable<LlaveDTO>> Get()
         {
             var usuarioId = _servicioUsuarios.ObtenerUsuarioId();
-            var llaves = await _context.LlavesAPI.Where(llaves => llaves.UsuarioId == usuarioId).ToListAsync();
+            var llaves = await _context.LlavesAPI
+                .Include(llave => llave.RestriccionesDominio)
+                .Include(llave => llave.RestriccionesIp)
+                .Where(llaves => llaves.UsuarioId == usuarioId)
+                .ToListAsync();
+
             return _mapper.Map<IEnumerable<LlaveDTO>>(llaves);
         }
 

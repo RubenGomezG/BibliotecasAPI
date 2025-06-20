@@ -2,9 +2,9 @@
 
 namespace BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionDominioDTOs
 {
-    public class RestriccionDominioCreacionDTO
+    public class RestriccionDominioDTO
     {
-        public int LlaveId { get; set; }
+        public int Id { get; set; }
         [Required]
         public required string Dominio { get; set; }
     }
