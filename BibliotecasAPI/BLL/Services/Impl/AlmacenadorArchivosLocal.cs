@@ -17,7 +17,7 @@ namespace BibliotecasAPI.BLL.Services.Impl
         {
             var extension = Path.GetExtension(archivo.FileName);
             var nombreArchivo = $"{Guid.NewGuid()}{extension}";
-            string folder = Path.Combine(_environment.WebRootPath, contenedor);
+            string folder = Path.Combine(_environment.WebRootPath, contenedor!);
 
             if (!Directory.Exists(folder))
             {
@@ -34,7 +34,7 @@ namespace BibliotecasAPI.BLL.Services.Impl
             }
             var request = _httpContextAccessor.HttpContext!.Request;
             var url = $"{request.Scheme}://{request.Host}";
-            var urlArchivo = Path.Combine(url, contenedor, nombreArchivo).Replace("\\", "/");
+            var urlArchivo = Path.Combine(url, contenedor!, nombreArchivo).Replace("\\", "/");
             
             return urlArchivo;
         }

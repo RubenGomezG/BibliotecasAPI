@@ -147,7 +147,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
             if (autor is null)
             {
-                return null;
+                return null!;
             }
 
             var autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);

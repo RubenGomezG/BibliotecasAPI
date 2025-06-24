@@ -1,4 +1,4 @@
-﻿using BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionDominioDTOs;
+﻿using BibliotecasAPI.DAL.DTOs.RestriccionDTOs.RestriccionDominioDTOs;
 using BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionIpDTOs;
 
 namespace BibliotecasAPI.DAL.DTOs.LlaveDTOs

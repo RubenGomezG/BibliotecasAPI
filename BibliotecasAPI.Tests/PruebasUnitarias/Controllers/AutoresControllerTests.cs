@@ -51,7 +51,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         {
 
             //Prueba
-            var respuesta = await controller.Patch(1, null);
+            var respuesta = await controller.Patch(1, null!);
 
             //Verificación
 

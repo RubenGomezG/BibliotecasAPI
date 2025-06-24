@@ -1,31 +1,31 @@
 ﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
-using BibliotecasAPI.DAL.DTOs.RestriccionDTOs.RestriccionDominioDTOs;
+using BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionIpDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.Controllers.V1
+namespace BibliotecasAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/v1/restriccionesDominio")]
+    [Route("api/v2/restriccionesIp")]
     [Authorize]
     [DeshabilitarLimitePeticiones]
-    public class RestriccionesDominioController : ControllerBase
+    public class RestriccionesIpController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IServicioUsuarios _servicioUsuarios;
 
-        public RestriccionesDominioController(ApplicationDbContext context, IServicioUsuarios servicioUsuarios)
+        public RestriccionesIpController(ApplicationDbContext context, IServicioUsuarios servicioUsuarios)
         {
             _context = context;
             _servicioUsuarios = servicioUsuarios;
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(RestriccionDominioCreacionDTO restriccion)
+        public async Task<ActionResult> Post(RestriccionIpCreacionDTO restriccion)
         {
             var llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == restriccion.LlaveId);
 
@@ -41,21 +41,21 @@ namespace BibliotecasAPI.Controllers.V1
                 return Forbid();
             }
 
-            var restriccionDominio = new RestriccionDominio
+            var restriccionIp = new RestriccionIp
             {
                 LlaveId = restriccion.LlaveId,
-                Dominio = restriccion.Dominio
+                Ip = restriccion.Ip
             };
 
-            _context.Add(restriccionDominio);
+            _context.Add(restriccionIp);
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int id, RestriccionDominioActualizacionDTO restriccion)
+        public async Task<ActionResult> Put(int id, RestriccionIpActualizacionDTO restriccion)
         {
-            var restriccionDB = await _context.RestriccionesDominio
+            var restriccionDB = await _context.RestriccionesIp
                 .Include(r => r.Llave)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
@@ -71,7 +71,7 @@ namespace BibliotecasAPI.Controllers.V1
                 return Forbid();
             }
 
-            restriccionDB.Dominio = restriccion.Dominio;
+            restriccionDB.Ip = restriccion.Ip;
             await _context.SaveChangesAsync();
             return NoContent();
         }
@@ -79,7 +79,7 @@ namespace BibliotecasAPI.Controllers.V1
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var restriccionDB = await _context.RestriccionesDominio
+            var restriccionDB = await _context.RestriccionesIp
                 .Include(r => r.Llave)
                 .FirstOrDefaultAsync(r => r.Id == id);
 

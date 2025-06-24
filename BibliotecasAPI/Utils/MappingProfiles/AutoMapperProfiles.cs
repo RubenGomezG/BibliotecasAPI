@@ -3,7 +3,7 @@ using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.DAL.DTOs.LlaveDTOs;
-using BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionDominioDTOs;
+using BibliotecasAPI.DAL.DTOs.RestriccionDTOs.RestriccionDominioDTOs;
 using BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionIpDTOs;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;

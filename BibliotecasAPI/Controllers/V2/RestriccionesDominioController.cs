@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.Controllers.V1
+namespace BibliotecasAPI.Controllers.V2
 {
     [ApiController]
-    [Route("api/v1/restriccionesDominio")]
+    [Route("api/v2/restriccionesDominio")]
     [Authorize]
     [DeshabilitarLimitePeticiones]
     public class RestriccionesDominioController : ControllerBase

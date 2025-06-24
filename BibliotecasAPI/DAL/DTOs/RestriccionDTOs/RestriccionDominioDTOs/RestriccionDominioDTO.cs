@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BibliotecasAPI.DAL.DTOs.RestriccionDTO.RestriccionDominioDTOs
+namespace BibliotecasAPI.DAL.DTOs.RestriccionDTOs.RestriccionDominioDTOs
 {
     public class RestriccionDominioDTO
     {
