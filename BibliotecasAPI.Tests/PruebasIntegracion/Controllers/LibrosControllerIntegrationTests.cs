@@ -1,5 +1,6 @@
 ﻿using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.Tests.TestUtils;
+using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 
 namespace BibliotecasAPI.Tests.PruebasIntegracion.Controllers
@@ -8,21 +9,21 @@ namespace BibliotecasAPI.Tests.PruebasIntegracion.Controllers
     public class LibrosControllerIntegrationTests : BasePruebas
     {
         private readonly string url = "/api/v1/libros";
-        private string nombreBD = Guid.NewGuid().ToString();
+        private readonly string nombreBD = Guid.NewGuid().ToString();
 
         [TestMethod]
         public async Task Post_Devuelve_400_CuandoAutoresidsEsVacio()
         {
             //Preparación
-            var factory = ConstruirWebApplicationFactory(nombreBD);
-            var cliente = factory.CreateClient();
-            var libroCreacionDTo = new LibroCreacionDTO
+            WebApplicationFactory<Program> factory = ConstruirWebApplicationFactory(nombreBD);
+            HttpClient cliente = factory.CreateClient();
+            LibroCreacionDTO libroCreacionDTo = new LibroCreacionDTO
             {
                 Titulo = "Titulo"
             };
 
             //Prueba
-            var respuesta = await cliente.PostAsJsonAsync(url, libroCreacionDTo);
+            HttpResponseMessage respuesta = await cliente.PostAsJsonAsync(url, libroCreacionDTo);
 
             //Verificación
             Assert.AreEqual(HttpStatusCode.BadRequest, respuesta.StatusCode);

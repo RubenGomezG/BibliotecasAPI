@@ -1,10 +1,5 @@
 ﻿using BibliotecasAPI.Utils.Validation;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BibliotecasAPI.Tests.PruebasUnitarias.Utils.Validation
 {
@@ -19,11 +14,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Utils.Validation
         public void IsValid_RetornaExitoso_SiValueNoTienePrimeraLetraMinuscula(string value)
         {
             //Preparación
-            var primeraLetraMayusculaAttribute = new PrimeraLetraMayusculaAttribute();
-            var validationContext = new ValidationContext(new object());
+            PrimeraLetraMayusculaAttribute primeraLetraMayusculaAttribute = new PrimeraLetraMayusculaAttribute();
+            ValidationContext validationContext = new ValidationContext(new object());
 
             //Prueba
-            var resultado = primeraLetraMayusculaAttribute.GetValidationResult(value, validationContext);
+            ValidationResult? resultado = primeraLetraMayusculaAttribute.GetValidationResult(value, validationContext);
 
             //Verificación
 
@@ -35,11 +30,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Utils.Validation
         public void IsValid_RetornaError_SiLaPrimeraLetraMinuscula(string value)
         {
             //Preparación
-            var primeraLetraMayusculaAttribute = new PrimeraLetraMayusculaAttribute();
-            var validationContext = new ValidationContext(new object());
+            PrimeraLetraMayusculaAttribute primeraLetraMayusculaAttribute = new PrimeraLetraMayusculaAttribute();
+            ValidationContext validationContext = new ValidationContext(new object());
 
             //Prueba
-            var resultado = primeraLetraMayusculaAttribute.GetValidationResult(value, validationContext);
+            ValidationResult? resultado = primeraLetraMayusculaAttribute.GetValidationResult(value, validationContext);
 
             //Verificación
 

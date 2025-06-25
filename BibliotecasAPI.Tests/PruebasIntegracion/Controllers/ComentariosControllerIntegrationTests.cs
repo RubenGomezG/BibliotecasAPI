@@ -1,4 +1,5 @@
-﻿using BibliotecasAPI.DAL.Model.Entidades;
+﻿using BibliotecasAPI.DAL.Datos;
+using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Tests.TestUtils;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -9,7 +10,7 @@ namespace BibliotecasAPI.Tests.PruebasIntegracion.Controllers
     public class ComentariosControllerIntegrationTests : BasePruebas
     {
         //private readonly string url = "/api/v1/libros/1/comentarios";
-        private string nombreBD = Guid.NewGuid().ToString();
+        private readonly string nombreBD = Guid.NewGuid().ToString();
 
         //[TestMethod]
         //public async Task BorrarComentario_Devuelve204_CuandoUsuarioBorraSuComentario()
@@ -78,12 +79,12 @@ namespace BibliotecasAPI.Tests.PruebasIntegracion.Controllers
 
         private async Task CrearDatosDePrueba()
         {
-            var context = ConstruirContext(nombreBD);
-            var autor = new Autor { Nombre = "Almudena", Apellidos = "La más bonita" };
+            ApplicationDbContext context = ConstruirContext(nombreBD);
+            Autor autor = new Autor { Nombre = "Almudena", Apellidos = "La más bonita" };
             context.Add(autor);
             await context.SaveChangesAsync();
 
-            var libro = new Libro { Titulo = "Soy Guapisima" };
+            Libro libro = new Libro { Titulo = "Soy Guapisima" };
             libro.Autores.Add(new AutorLibro { Autor = autor });
             context.Add(libro);
             await context.SaveChangesAsync();

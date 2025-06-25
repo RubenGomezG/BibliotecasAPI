@@ -12,7 +12,7 @@ namespace BibliotecasAPI.Utils.Validation
                 return ValidationResult.Success;
             }
 
-            var primeraLetra = value.ToString()![0].ToString();
+            string primeraLetra = value.ToString()![0].ToString();
             return primeraLetra != primeraLetra.ToUpper() ? new ValidationResult("La primera letra debe ser mayúscula") : ValidationResult.Success;
         }
     }

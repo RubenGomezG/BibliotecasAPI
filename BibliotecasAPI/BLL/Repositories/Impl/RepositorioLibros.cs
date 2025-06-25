@@ -72,7 +72,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             await _outputCacheStore.EvictByTagAsync(CACHE_LIBROS, default);
 
             var libroDTO = _mapper.Map<LibroDTO>(libro);
-            //return Ok(libroDTO);
             return new CreatedAtRouteResult("ObtenerLibroV1", new { id = libro.Id }, libroDTO);
         }
 

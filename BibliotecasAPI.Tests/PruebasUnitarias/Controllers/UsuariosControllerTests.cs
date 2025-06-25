@@ -1,22 +1,13 @@
 ﻿using AutoMapper;
-using BibliotecasAPI.BLL.Repositories.Impl;
-using BibliotecasAPI.BLL.Services.Impl.V1;
 using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.Controllers.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Tests.TestUtils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
 {
@@ -36,13 +27,13 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         [TestInitialize]
         public void Setup()
         {
-            var context = ConstruirContext(nombreBD);
+            ApplicationDbContext context = ConstruirContext(nombreBD);
             mapper = ConfigurarAutoMapper();
 
             userManager = Substitute.For<UserManager<Usuario>>(
                 Substitute.For<IUserStore<Usuario>>(), null, null, null, null, null, null, null, null);
 
-            var configuracion = new Dictionary<string, string>
+            Dictionary<string, string> configuracion = new Dictionary<string, string>
             {
                 {
                     "llavejwt", "asdasdasdaasdasdasd1214124aqsasgasgasgsd"
@@ -56,7 +47,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
             httpContextAccessor = Substitute.For<IHttpContextAccessor>();
             servicioUsuarios = Substitute.For<IServicioUsuarios>();
             servicioLlaves = Substitute.For<IServicioLlaves>();
-            var userClaimsFactory = Substitute.For<IUserClaimsPrincipalFactory<Usuario>>();
+            IUserClaimsPrincipalFactory<Usuario> userClaimsFactory = Substitute.For<IUserClaimsPrincipalFactory<Usuario>>();
             signInManager = Substitute.For<SignInManager<Usuario>>(userManager, httpContextAccessor,
                 userClaimsFactory, null, null, null, null);
 
@@ -67,8 +58,8 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         public async Task Registrar_DevuelveValidationProblem_SiFalla()
         {
             //Preparación
-            var mensajeDeError = "prueba";
-            var credenciales = new CredencialesUsuarioDTO
+            string mensajeDeError = "prueba";
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
             {
                 Email = "prueba@hotmail.com",
                 Password = "aA123456!"
@@ -82,11 +73,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
                 }));
 
             //Prueba
-            var respuesta = await controller.Registrar(credenciales);
+            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Registrar(credenciales);
 
             //Verificación
-            var resultado = respuesta.Result as ObjectResult;
-            var problemDetails = resultado!.Value as ValidationProblemDetails;
+            ObjectResult? resultado = respuesta.Result as ObjectResult;
+            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
             Assert.IsNotNull(problemDetails);
             Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
             Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
@@ -96,7 +87,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         public async Task Registrar_DevuelveToken_SiEsExito()
         {
             //Preparación
-            var credenciales = new CredencialesUsuarioDTO
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
             {
                 Email = "prueba@hotmail.com",
                 Password = "aA1234561234124124124!"
@@ -106,7 +97,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
                 .Returns(IdentityResult.Success);
 
             //Prueba
-            var respuesta = await controller.Registrar(credenciales);
+            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Registrar(credenciales);
 
             //Verificación
             Assert.IsNotNull(respuesta.Value);
@@ -116,8 +107,8 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         public async Task Login_DevuelveLoginIncorrecto_SiUsuarioNoExiste()
         {
             //Preparación
-            var mensajeDeError = "Login incorrecto.";
-            var credenciales = new CredencialesUsuarioDTO
+            string mensajeDeError = "Login incorrecto.";
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
             {
                 Email = "prueb123a@hotmail.com",
                 Password = "aA123456!"
@@ -125,13 +116,13 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
 
             userManager.FindByEmailAsync(credenciales.Email)!
                 .Returns(Task.FromResult<Usuario>(null!));
-            
+
             //Prueba
-            var respuesta = await controller.Login(credenciales);
+            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
 
             //Verificación
-            var resultado = respuesta.Result as ObjectResult;
-            var problemDetails = resultado!.Value as ValidationProblemDetails;
+            ObjectResult? resultado = respuesta.Result as ObjectResult;
+            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
             Assert.IsNotNull(problemDetails);
             Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
             Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
@@ -141,14 +132,14 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         public async Task Login_DevuelveLoginIncorrecto_CuandoLoginIncorrecto()
         {
             //Preparación
-            var mensajeDeError = "Login incorrecto.";
-            var credenciales = new CredencialesUsuarioDTO
+            string mensajeDeError = "Login incorrecto.";
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
             {
                 Email = "prueb123a@hotmail.com",
                 Password = "aA123456!"
             };
 
-            var usuario = new Usuario
+            Usuario usuario = new Usuario
             {
                 Email = credenciales.Email
             };
@@ -160,11 +151,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
                 .Returns(Microsoft.AspNetCore.Identity.SignInResult.Failed);
 
             //Prueba
-            var respuesta = await controller.Login(credenciales);
+            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
 
             //Verificación
-            var resultado = respuesta.Result as ObjectResult;
-            var problemDetails = resultado!.Value as ValidationProblemDetails;
+            ObjectResult? resultado = respuesta.Result as ObjectResult;
+            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
             Assert.IsNotNull(problemDetails);
             Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
             Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
@@ -174,13 +165,13 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         public async Task Login_DevuelveToken_SiLoginEsCorrecto()
         {
             //Preparación
-            var credenciales = new CredencialesUsuarioDTO
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
             {
                 Email = "prueba@hotmail.com",
                 Password = "aA1234561234124124124!"
             };
 
-            var usuario = new Usuario
+            Usuario usuario = new Usuario
             {
                 Email = credenciales.Email
             };
@@ -192,7 +183,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
                 .Returns(Microsoft.AspNetCore.Identity.SignInResult.Success);
 
             //Prueba
-            var respuesta = await controller.Login(credenciales);
+            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
 
             //Verificación
             Assert.IsNotNull(respuesta.Value);

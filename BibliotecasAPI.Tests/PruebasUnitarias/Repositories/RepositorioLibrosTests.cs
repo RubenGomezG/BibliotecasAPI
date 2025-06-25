@@ -1,21 +1,11 @@
 ﻿using AutoMapper;
 using BibliotecasAPI.BLL.Repositories.Impl;
-using BibliotecasAPI.BLL.Services.Impl.V1;
-using BibliotecasAPI.BLL.Services.Interfaces;
-using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
+using BibliotecasAPI.DAL.DTOs.LibroDTOs;
 using BibliotecasAPI.Tests.TestUtils;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
 {
@@ -45,10 +35,10 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
         public async Task Get_RetornaCeroLibros_CuandoNoHayLibros()
         {
             //Preparación
-            var context = ConstruirContext(nombreBD);
-            var paginacionDTO = new PaginacionDTO(1, 1);
+            ApplicationDbContext context = ConstruirContext(nombreBD);
+            PaginacionDTO paginacionDTO = new PaginacionDTO(1, 1);
             //Prueba
-            var respuesta = await repositorio.GetLibros(paginacionDTO);
+            IEnumerable<LibroConAutoresDTO> respuesta = await repositorio.GetLibros(paginacionDTO);
             httpContextAccessor.HttpContext.Returns(new DefaultHttpContext());
 
             //Verificación                   

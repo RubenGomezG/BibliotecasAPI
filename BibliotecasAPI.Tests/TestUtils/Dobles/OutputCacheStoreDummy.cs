@@ -1,9 +1,4 @@
 ﻿using Microsoft.AspNetCore.OutputCaching;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BibliotecasAPI.Tests.TestUtils.Dobles
 {

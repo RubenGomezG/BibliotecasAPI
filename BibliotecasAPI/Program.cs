@@ -36,7 +36,7 @@ builder.Services.AddOutputCache(opciones =>
 });
 
 builder.Services.AddDataProtection();
-var allowedHosts = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
+string[] allowedHosts = builder.Configuration.GetSection("origenesPermitidos").Get<string[]>()!;
 
 builder.Services.AddCors(opciones => 
 {
@@ -186,7 +186,7 @@ app.UseSwaggerUI(opciones =>
     opciones.SwaggerEndpoint("/swagger/v2/swagger.json", "Biblioteca API V2");
 });
 
-var wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+string wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 if (Directory.Exists(wwwRootPath))
 {
     app.UseStaticFiles();

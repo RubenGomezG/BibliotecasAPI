@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
+using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.MappingProfiles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,14 +21,14 @@ namespace BibliotecasAPI.Tests.TestUtils
 
         protected ApplicationDbContext ConstruirContext(string nombreBBDD)
         {
-            var opciones = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase(nombreBBDD).Options;
-            var dbContext = new ApplicationDbContext(opciones);
+            DbContextOptions<ApplicationDbContext> opciones = new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase(nombreBBDD).Options;
+            ApplicationDbContext dbContext = new ApplicationDbContext(opciones);
             return dbContext;
         }
 
         protected IMapper ConfigurarAutoMapper()
         {
-            var config = new MapperConfiguration(opciones =>
+            MapperConfiguration config = new MapperConfiguration(opciones =>
             {
                 opciones.AddProfile(new AutoMapperProfiles());
             });
@@ -36,7 +37,7 @@ namespace BibliotecasAPI.Tests.TestUtils
 
         protected WebApplicationFactory<Program> ConstruirWebApplicationFactory(string nombreBD, bool ignorarSeguridad = true)
         {
-            var factory = new WebApplicationFactory<Program>();
+            WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
 
             factory = factory.WithWebHostBuilder(builder =>
             {
@@ -75,17 +76,17 @@ namespace BibliotecasAPI.Tests.TestUtils
 
         protected async Task<string> CrearUsuario(string nombreBD, WebApplicationFactory<Program> factory, IEnumerable<Claim> claims, string email)
         {
-            var urlRegistro = "/api/v1/usuarios/registro";
+            string urlRegistro = "/api/v1/usuarios/registro";
             string token = string.Empty;
             token = await ConstruirToken(email, urlRegistro, factory);
 
             if (claims.Any())
             {
-                var context = ConstruirContext(nombreBD);
-                var usuario = await context.Users.Where(user => user.Email == email).FirstAsync();
+                ApplicationDbContext context = ConstruirContext(nombreBD);
+                Usuario usuario = await context.Users.Where(user => user.Email == email).FirstAsync();
                 Assert.IsNotNull(usuario);
 
-                var userClaims = claims.Select(x => new IdentityUserClaim<string>
+                IEnumerable<IdentityUserClaim<string>> userClaims = claims.Select(x => new IdentityUserClaim<string>
                 {
                     UserId = usuario.Id,
                     ClaimType = x.Type,
@@ -94,7 +95,7 @@ namespace BibliotecasAPI.Tests.TestUtils
 
                 context.UserClaims.AddRange(userClaims);
                 await context.SaveChangesAsync();
-                var urlLogin = "/api/v1/usuarios/login";
+                string urlLogin = "/api/v1/usuarios/login";
                 token = await ConstruirToken(email, urlLogin, factory);
             }
 
@@ -103,14 +104,14 @@ namespace BibliotecasAPI.Tests.TestUtils
 
         private async Task<string> ConstruirToken(string email, string url, WebApplicationFactory<Program> factory)
         {
-            var password = "aA1234561234124124124!";
-            var credenciales = new CredencialesUsuarioDTO { Email = email, Password = password };
-            var cliente = factory.CreateClient();
-            var respuesta = await cliente.PostAsJsonAsync(url, credenciales);
+            string password = "aA1234561234124124124!";
+            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO { Email = email, Password = password };
+            HttpClient cliente = factory.CreateClient();
+            HttpResponseMessage respuesta = await cliente.PostAsJsonAsync(url, credenciales);
 
             respuesta.EnsureSuccessStatusCode();
-            var contenido = await respuesta.Content.ReadAsStringAsync();
-            var respuestaAutenticacion = JsonSerializer.Deserialize<RespuestaAutenticacionDTO>(contenido, jsonSerializerOptions)!;
+            string contenido = await respuesta.Content.ReadAsStringAsync();
+            RespuestaAutenticacionDTO respuestaAutenticacion = JsonSerializer.Deserialize<RespuestaAutenticacionDTO>(contenido, jsonSerializerOptions)!;
 
             Assert.IsNotNull(respuestaAutenticacion!.Token);
 

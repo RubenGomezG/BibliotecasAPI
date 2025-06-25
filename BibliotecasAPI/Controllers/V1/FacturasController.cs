@@ -1,9 +1,8 @@
-﻿using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs.FacturaDTOs;
 using BibliotecasAPI.Utils.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers.V1
 {
@@ -13,45 +12,17 @@ namespace BibliotecasAPI.Controllers.V1
     [DeshabilitarLimitePeticiones]
     public class FacturasController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IServicioFacturas _servicioFacturas;
 
-        public FacturasController(ApplicationDbContext context)
+        public FacturasController(IServicioFacturas servicioFacturas)
         {
-            _context = context;
+            _servicioFacturas = servicioFacturas;
         }
 
         [HttpPost]
         public async Task<ActionResult> Pagar(FacturaPagarDTO factura)
         {
-            var facturaDB = await _context.Facturas
-                .Include(factura => factura.Usuario)
-                .FirstOrDefaultAsync(x => x.Id == factura.FacturaId);
-
-            if (facturaDB == null) 
-            { 
-                return NotFound();
-            }
-
-            if (facturaDB.Pagada)
-            {
-                ModelState.AddModelError(nameof(factura.FacturaId), "La factura ya está pagada");
-                return ValidationProblem();
-            }
-
-            facturaDB.Pagada = true;
-            await _context.SaveChangesAsync();
-
-            var hayFacturasPendientesVencidas = await _context.Facturas
-                .AnyAsync(x => x.UsuarioId == facturaDB.UsuarioId &&
-                         !x.Pagada && x.FechaLimitePago < DateTime.Today);
-
-            if (!hayFacturasPendientesVencidas)
-            {
-                facturaDB.Usuario!.TieneDeuda = false;
-                await _context.SaveChangesAsync();
-            }
-
-            return NoContent();
+            return await _servicioFacturas.Pagar(factura);
         }
     }
 }

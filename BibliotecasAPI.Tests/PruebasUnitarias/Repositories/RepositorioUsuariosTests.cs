@@ -1,18 +1,10 @@
-﻿using AutoMapper;
-using BibliotecasAPI.BLL.Repositories.Impl;
+﻿using BibliotecasAPI.BLL.Repositories.Impl;
 using BibliotecasAPI.BLL.Repositories.Interfaces;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Tests.TestUtils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.OutputCaching;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
 {
@@ -37,11 +29,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
         public async Task ObtenerUsuario_RetornaNull_CuandoNoHayClaimEmail()
         {
             //Preparación
-            var httpContext = new DefaultHttpContext();
+            DefaultHttpContext httpContext = new DefaultHttpContext();
             httpContextAccessor.HttpContext.Returns(httpContext);
 
             //Prueba
-            var usuario = await repositorioUsuarios.ObtenerUsuario();
+            Usuario? usuario = await repositorioUsuarios.ObtenerUsuario();
 
             //Verificación
 
@@ -53,20 +45,20 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
         public async Task ObtenerUsuario_RetornaUsuario_CuandoHayClaimEmail()
         {
             //Preparación
-            var email = "rosi@almudena.com";
-            var usuarioEsperado = new Usuario { Email = email };
+            string email = "rosi@almudena.com";
+            Usuario usuarioEsperado = new Usuario { Email = email };
             userManager.FindByEmailAsync(email)!.Returns(Task.FromResult(usuarioEsperado));
 
-            var claims = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            ClaimsPrincipal claims = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
             {
                 new Claim("email", email)
             }));
 
-            var httpContext = new DefaultHttpContext() { User = claims};
+            DefaultHttpContext httpContext = new DefaultHttpContext() { User = claims };
             httpContextAccessor.HttpContext.Returns(httpContext);
 
             //Prueba
-            var usuario = await repositorioUsuarios.ObtenerUsuario();
+            Usuario? usuario = await repositorioUsuarios.ObtenerUsuario();
 
             //Verificación
 
