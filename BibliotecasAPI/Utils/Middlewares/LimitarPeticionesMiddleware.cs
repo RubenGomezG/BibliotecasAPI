@@ -6,6 +6,8 @@ using BibliotecasAPI.Utils.Attributes;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using System.Net;
 
 namespace BibliotecasAPI.Utils.Middlewares
 {
@@ -34,7 +36,7 @@ namespace BibliotecasAPI.Utils.Middlewares
                 return;
             }
 
-            var peticion = new Peticion { LlaveId = llaveDB.Id, FechaPeticion = DateTime.UtcNow };
+            Peticion peticion = new Peticion { LlaveId = llaveDB.Id, FechaPeticion = DateTime.UtcNow };
             dbContext.Add(peticion);
             await dbContext.SaveChangesAsync();
 
@@ -43,15 +45,15 @@ namespace BibliotecasAPI.Utils.Middlewares
 
         private bool PeticionSuperaRestricciones(LlaveAPI llaveAPI, HttpContext httpContext)
         {
-            var tieneRestricciones = llaveAPI.RestriccionesDominio!.Count > 0 || llaveAPI.RestriccionesIp!.Count > 0;
+            bool tieneRestricciones = llaveAPI.RestriccionesDominio!.Count > 0 || llaveAPI.RestriccionesIp!.Count > 0;
 
             if (!tieneRestricciones)
             {
                 return true;
             }
 
-            var peticionSuperaRestriccionesDominio = PeticionSuperaRestriccionesDominio(llaveAPI.RestriccionesDominio, httpContext);
-            var peticionSuperaRestriccionesIp = PeticionSuperaRestriccionesIp(llaveAPI.RestriccionesIp!, httpContext);
+            bool peticionSuperaRestriccionesDominio = PeticionSuperaRestriccionesDominio(llaveAPI.RestriccionesDominio, httpContext);
+            bool peticionSuperaRestriccionesIp = PeticionSuperaRestriccionesIp(llaveAPI.RestriccionesIp!, httpContext);
 
             return peticionSuperaRestriccionesDominio || peticionSuperaRestriccionesIp;
         }
@@ -63,17 +65,17 @@ namespace BibliotecasAPI.Utils.Middlewares
                 return false;
             }
 
-            var referer = httpContext.Request.Headers["referer"].ToString();
+            string referer = httpContext.Request.Headers.Referer.ToString();
 
             if (string.IsNullOrEmpty(referer))
             {
                 return false;
             }
 
-            var uri = new Uri(referer);
-            var dominio = uri.Host;
+            Uri uri = new Uri(referer);
+            string dominio = uri.Host;
 
-            var superaRestriccion = restricciones.Any(restriccion => restriccion.Dominio == dominio);
+            bool superaRestriccion = restricciones.Any(restriccion => restriccion.Dominio == dominio);
             return superaRestriccion;
         }
 
@@ -83,22 +85,22 @@ namespace BibliotecasAPI.Utils.Middlewares
             {
                 return false;
             }
-            var remoteIpAddress = httpContext.Connection.RemoteIpAddress;
+            IPAddress? remoteIpAddress = httpContext.Connection.RemoteIpAddress;
 
             if (remoteIpAddress == null || string.IsNullOrEmpty(remoteIpAddress.ToString()))
             {
                 return false;
             }
 
-            var superaRestriccion = restricciones.Any(restriccion => restriccion.Ip == remoteIpAddress.ToString());
+            bool superaRestriccion = restricciones.Any(restriccion => restriccion.Ip == remoteIpAddress.ToString());
             return superaRestriccion;
         }
 
         private async Task<LlaveAPI> ObtenerLlaveBBDD(HttpContext httpContext, ApplicationDbContext dbContext)
         {
-            var limitarPeticionesDTO = _optionsMonitor.CurrentValue;
+            LimitarPeticionesDTO limitarPeticionesDTO = _optionsMonitor.CurrentValue;
 
-            var llaveStringValues = httpContext.Request.Headers["X-Api-Key"];
+            StringValues llaveStringValues = httpContext.Request.Headers["X-Api-Key"];
 
             if (llaveStringValues.Count == 0)
             {
@@ -114,9 +116,9 @@ namespace BibliotecasAPI.Utils.Middlewares
                 return null!;
             }
 
-            var llave = llaveStringValues[0];
+            string? llave = llaveStringValues[0];
 
-            var llaveDB = await dbContext.LlavesAPI
+            LlaveAPI? llaveDB = await dbContext.LlavesAPI
                 .Include(llave => llave.RestriccionesDominio)
                 .Include(llave => llave.RestriccionesIp)
                 .Include(llave => llave.Usuario)
@@ -144,8 +146,8 @@ namespace BibliotecasAPI.Utils.Middlewares
 
             if (llaveDB.TipoLlave == TipoLlave.Gratuita)
             {
-                var hoy = DateTime.UtcNow.Date;
-                var peticionesHoy = await dbContext.Peticiones.CountAsync(peticiones => peticiones.LlaveId == llaveDB.Id && peticiones.FechaPeticion >= hoy);
+                DateTime hoy = DateTime.UtcNow.Date;
+                int peticionesHoy = await dbContext.Peticiones.CountAsync(peticiones => peticiones.LlaveId == llaveDB.Id && peticiones.FechaPeticion >= hoy);
 
                 if (limitarPeticionesDTO.PeticionesPorDiaGratuito <= peticionesHoy)
                 {
@@ -166,18 +168,18 @@ namespace BibliotecasAPI.Utils.Middlewares
 
         private bool EndpointIgnoraPeticiones(HttpContext httpContext)
         {
-            var endpoint = httpContext.GetEndpoint();
+            Endpoint? endpoint = httpContext.GetEndpoint();
             if (endpoint == null)
             {
                 return true;
             }
 
-            var actionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+            ControllerActionDescriptor? actionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
 
             if (actionDescriptor != null)
             {
-                var accionIgnoraLimitePeticiones = actionDescriptor.MethodInfo.GetCustomAttributes(typeof(DeshabilitarLimitePeticionesAttribute), true).Any();
-                var controladorIgnoraLimitePeticiones = actionDescriptor.ControllerTypeInfo.GetCustomAttributes(typeof(DeshabilitarLimitePeticionesAttribute), true).Any();
+                bool accionIgnoraLimitePeticiones = actionDescriptor.MethodInfo.GetCustomAttributes(typeof(DeshabilitarLimitePeticionesAttribute), true).Any();
+                bool controladorIgnoraLimitePeticiones = actionDescriptor.ControllerTypeInfo.GetCustomAttributes(typeof(DeshabilitarLimitePeticionesAttribute), true).Any();
 
                 if (accionIgnoraLimitePeticiones || controladorIgnoraLimitePeticiones)
                 {

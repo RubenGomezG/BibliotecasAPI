@@ -24,21 +24,21 @@ namespace BibliotecasAPI.Utils.Filters
                 context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
-            if (libroCreacionDTO.AutoresIds is null || libroCreacionDTO.AutoresIds.Count == 0)
+            if (libroCreacionDTO.AutoresIds == null || libroCreacionDTO.AutoresIds.Count == 0)
             {
                 context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), ERROR_NO_LIBROS_SIN_AUTOR);
                 context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
 
-            var autoresIdsExisten = await _dbContext.Autores
+            List<int> autoresIdsExisten = await _dbContext.Autores
                                     .Where(a => libroCreacionDTO.AutoresIds.Contains(a.Id))
                                     .Select(x => x.Id)
                                     .ToListAsync();
 
             if (autoresIdsExisten.Count != libroCreacionDTO.AutoresIds.Count)
             {
-                var autoresNoExisten = libroCreacionDTO.AutoresIds.Except(autoresIdsExisten);
+                IEnumerable<int> autoresNoExisten = libroCreacionDTO.AutoresIds.Except(autoresIdsExisten);
                 context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), $"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
                 context.Result = context.ModelState.ContruirProblemDetail($"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
                 return;

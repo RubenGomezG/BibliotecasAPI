@@ -8,17 +8,17 @@ namespace BibliotecasAPI.Utils.Middlewares
     {
         public static async Task InvokeAsync(HttpContext context)
         {
-            var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-            var exception = exceptionHandlerFeature?.Error!;
+            IExceptionHandlerFeature? exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+            Exception exception = exceptionHandlerFeature?.Error!;
 
-            var error = new Error()
+            Error error = new Error()
             {
                 Mensaje = exception.Message,
                 StackTrace = exception.StackTrace,
                 Fecha = DateTime.UtcNow
             };
 
-            var dbContext = context.RequestServices.GetRequiredService<ApplicationDbContext>();
+            ApplicationDbContext dbContext = context.RequestServices.GetRequiredService<ApplicationDbContext>();
             dbContext.Add(error);
             await dbContext.SaveChangesAsync();
             await Results.InternalServerError(new

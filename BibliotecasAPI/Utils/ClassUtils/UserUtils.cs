@@ -13,25 +13,25 @@ namespace BibliotecasAPI.Utils.ClassUtils
         public static async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuarioDTO,
             IConfiguration configuration, UserManager<Usuario> _userManager, string usuarioId)
         {
-            var claims = new List<Claim>
+            List<Claim> claims = new List<Claim>
             {
                 new Claim("email", credencialesUsuarioDTO.Email),
                 new Claim("usuarioId", usuarioId)
             };
 
-            var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
-            var claimsDB = await _userManager.GetClaimsAsync(usuario!);
+            Usuario? usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+            IList<Claim> claimsDB = await _userManager.GetClaimsAsync(usuario!);
             claims.AddRange(claimsDB);
 
-            var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["LlaveJWT"]!));
-            var credenciales = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
+            SymmetricSecurityKey llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["LlaveJWT"]!));
+            SigningCredentials credenciales = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
 
-            var expiracion = DateTime.UtcNow.AddYears(1);
+            DateTime expiracion = DateTime.UtcNow.AddYears(1);
 
-            var tokenDeSeguridad = new JwtSecurityToken(issuer: null, audience: null,
+            JwtSecurityToken tokenDeSeguridad = new JwtSecurityToken(issuer: null, audience: null,
                 claims: claims, expires: expiracion, signingCredentials: credenciales);
 
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenDeSeguridad);
+            string token = new JwtSecurityTokenHandler().WriteToken(tokenDeSeguridad);
             return new RespuestaAutenticacionDTO
             {
                 Token = token,

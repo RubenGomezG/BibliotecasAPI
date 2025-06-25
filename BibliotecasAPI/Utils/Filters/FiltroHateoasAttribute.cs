@@ -26,7 +26,7 @@ namespace BibliotecasAPI.Utils.Filters
                 return false;
             }
 
-            if(result.StatusCode.HasValue && !result.StatusCode!.Value.ToString().StartsWith("2"))
+            if(result.StatusCode.HasValue && !result.StatusCode!.Value.ToString().StartsWith('2'))
             {
                 return false;
             }

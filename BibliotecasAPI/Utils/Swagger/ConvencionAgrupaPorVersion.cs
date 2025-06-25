@@ -7,8 +7,8 @@ namespace BibliotecasAPI.Utils.Swagger
     {
         public void Apply(ControllerModel controller)
         {
-            var namespaceDelControlador = controller.ControllerType.Namespace;
-            var version = namespaceDelControlador!.Split(".").Last().ToLower();
+            string? namespaceDelControlador = controller.ControllerType.Namespace;
+            string version = namespaceDelControlador!.Split(".").Last().ToLower();
             controller.ApiExplorer.GroupName = version;
         }
     }

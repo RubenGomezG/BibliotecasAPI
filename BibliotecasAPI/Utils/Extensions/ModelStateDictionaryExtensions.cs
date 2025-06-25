@@ -7,7 +7,7 @@ namespace BibliotecasAPI.Utils.Extensions
     {
         public static BadRequestObjectResult ContruirProblemDetail(this ModelStateDictionary modelState, string error)
         {
-            var problemDetails = new ValidationProblemDetails(modelState)
+            ValidationProblemDetails problemDetails = new ValidationProblemDetails(modelState)
             {
                 Title = error,
                 Status = StatusCodes.Status400BadRequest
@@ -18,7 +18,7 @@ namespace BibliotecasAPI.Utils.Extensions
         public static ActionResult RetornarLoginIncorrecto(this ModelStateDictionary modelState)
         {
             modelState.AddModelError(string.Empty, "Login incorrecto.");
-            var problemDetails = new ValidationProblemDetails(modelState)
+            ValidationProblemDetails problemDetails = new ValidationProblemDetails(modelState)
             {
                 Title = "Login Incorrecto.",
                 Status = StatusCodes.Status400BadRequest

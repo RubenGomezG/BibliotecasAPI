@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace BibliotecasAPI.Utils
 {
