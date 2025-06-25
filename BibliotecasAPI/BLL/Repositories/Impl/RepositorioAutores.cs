@@ -46,21 +46,21 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         [OutputCache(Tags = [CACHE_AUTORES])]
         public async Task<IEnumerable<AutorDTO>> GetAutores(PaginacionDTO paginacionDTO)
         {
-            var queryable = _context.Autores.Include(a => a.Libros).AsQueryable();
+            IQueryable<Autor> queryable = _context.Autores.Include(a => a.Libros).AsQueryable();
             await _httpContextAccessor.HttpContext!.InsertarParametrosPaginacionEnCabecera(queryable);
 
-            var autores = await queryable
+            List<Autor> autores = await queryable
                             .OrderBy(a => a.Nombre)
                             .Paginar(paginacionDTO)
                             .ToListAsync();
 
-            var autoresDTO = _mapper.Map<IEnumerable<AutorDTO>>(autores);
+            IEnumerable<AutorDTO> autoresDTO = _mapper.Map<IEnumerable<AutorDTO>>(autores);
             return autoresDTO;
         }
 
         public async Task<ActionResult<IEnumerable<AutorDTO>>> Filtrar(AutorFiltroDTO autorFiltroDTO)
         {
-            var queryable = _context.Autores.AsQueryable();
+            IQueryable<Autor> queryable = _context.Autores.AsQueryable();
 
             if (!string.IsNullOrEmpty(autorFiltroDTO.Nombre))
             {
@@ -126,25 +126,25 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
 
             await _httpContextAccessor.HttpContext!.InsertarParametrosPaginacionEnCabecera(queryable);
-            var autores = await queryable
+            List<Autor> autores = await queryable
                         .Paginar(autorFiltroDTO.PaginacionDTO)
                         .ToListAsync();
 
             if (autorFiltroDTO.IncluirLibros)
             {
-                var autoresDTO = _mapper.Map<IEnumerable<AutorConLibrosDTO>>(autores);
+                IEnumerable<AutorConLibrosDTO> autoresDTO = _mapper.Map<IEnumerable<AutorConLibrosDTO>>(autores);
                 return new OkObjectResult(autoresDTO);
             }
             else
             {
-                var autoresDTO = _mapper.Map<IEnumerable<AutorDTO>>(autores);
+                IEnumerable<AutorDTO> autoresDTO = _mapper.Map<IEnumerable<AutorDTO>>(autores);
                 return new OkObjectResult(autoresDTO);
             }
         }
 
         public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorId(int id)
         {
-            var autor = await _context.Autores
+            Autor? autor = await _context.Autores
                 .Include(a => a.Libros)
                 .ThenInclude(l => l.Libro)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -154,13 +154,13 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new NotFoundResult();
             }
 
-            var autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
+            AutorConLibrosDTO autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
             return new OkObjectResult(autorDTO);
         }
 
         public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorIdV2(int id, bool incluirLibros = false)
         {
-            var queryable = _context.Autores.AsQueryable();
+            IQueryable<Autor> queryable = _context.Autores.AsQueryable();
 
             if (incluirLibros)
             {
@@ -168,31 +168,31 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 .ThenInclude(l => l.Libro);
             }
 
-            var autor = await queryable.FirstOrDefaultAsync(x => x.Id == id);
+            Autor? autor = await queryable.FirstOrDefaultAsync(x => x.Id == id);
 
             if (autor is null)
             {
                 return new NotFoundResult();
             }
 
-            var autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
+            AutorConLibrosDTO autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
             return new OkObjectResult(autorDTO);
         }
 
         public async Task<ActionResult> AnadirAutor(AutorCreacionDTO autorCreacionDTO)
         {
-            var autor = _mapper.Map<Autor>(autorCreacionDTO);
+            Autor autor = _mapper.Map<Autor>(autorCreacionDTO);
             _context.Add(autor);
             await _context.SaveChangesAsync();
             await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
 
-            var autorDTO = _mapper.Map<AutorDTO>(autor);
+            AutorDTO autorDTO = _mapper.Map<AutorDTO>(autor);
             return new CreatedAtRouteResult("ObtenerAutorPorIdV1", new { id = autorDTO.Id }, autorDTO);
         }
 
         public async Task<ActionResult> AnadirAutorConFoto(AutorCreacionConFotoDTO autorCreacionDTO)
         {
-            var autor = _mapper.Map<Autor>(autorCreacionDTO);
+            Autor autor = _mapper.Map<Autor>(autorCreacionDTO);
 
             if (autorCreacionDTO.Foto != null)
             {
@@ -204,7 +204,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             await _context.SaveChangesAsync();
             await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
 
-            var autorDTO = _mapper.Map<AutorDTO>(autor);
+            AutorDTO autorDTO = _mapper.Map<AutorDTO>(autor);
             return new CreatedAtRouteResult("ObtenerAutorPorIdV1", new { id = autorDTO.Id }, autorDTO);
         }
 
@@ -212,13 +212,13 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         {
             if (await _context.Autores.AnyAsync(a => a.Id == id))
             {
-                var autor = _mapper.Map<Autor>(autorCreacionDTO);
+                Autor autor = _mapper.Map<Autor>(autorCreacionDTO);
                 autor.Id = id;
 
                 if (autorCreacionDTO.Foto != null)
                 {
-                    var fotoActual = await _context.Autores.Where(a => a.Id == id).Select(a => a.Foto).FirstAsync();
-                    var url = await _almacenadorArchivos.Editar(fotoActual, CONTENEDOR, autorCreacionDTO.Foto);
+                    string? fotoActual = await _context.Autores.Where(a => a.Id == id).Select(a => a.Foto).FirstAsync();
+                    string url = await _almacenadorArchivos.Editar(fotoActual, CONTENEDOR, autorCreacionDTO.Foto);
                     autor.Foto = url;
                 }
 
@@ -236,14 +236,14 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new BadRequestResult();
             }
 
-            var autorDB = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
+            Autor? autorDB = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
 
             if (autorDB is null)
             {
                 return new NotFoundResult();
             }
 
-            var autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
+            AutorPatchDTO autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
             Controller? controller = _httpContextAccessor.HttpContext!.GetEndpoint()!.Metadata.GetMetadata<Controller>();
             patchDoc.ApplyTo(autorPatchDTO, controller!.ModelState);
 
@@ -260,7 +260,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
         public async Task<ActionResult> BorrarAutor(int id)
         {
-            var autor = await _context.Autores.FirstOrDefaultAsync(x => x.Id == id);
+            Autor? autor = await _context.Autores.FirstOrDefaultAsync(x => x.Id == id);
 
             if (autor is null)
             {

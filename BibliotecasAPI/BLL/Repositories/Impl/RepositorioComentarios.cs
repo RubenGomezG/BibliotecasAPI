@@ -39,19 +39,19 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             {
                 return new NotFoundResult();
             }
-            var comentarios = await _context.Comentarios
+            List<Comentario> comentarios = await _context.Comentarios
                 .Include(c => c.Usuario)
                 .Where(c => c.LibroId == libroId)
                 .OrderByDescending(l => l.FechaPublicacion)
                 .ToListAsync();
 
-            var comentariosDTO = _mapper.Map<List<ComentarioDTO>>(comentarios);
+            List<ComentarioDTO> comentariosDTO = _mapper.Map<List<ComentarioDTO>>(comentarios);
             return comentariosDTO;
         }
 
         public async Task<ActionResult<ComentarioConLibroDTO>> GetComentarioPorId(Guid id)
         {
-            var comentario = await _context.Comentarios
+            Comentario? comentario = await _context.Comentarios
                                     .Include(c => c.Usuario)
                                     .Include(c => c.Libro)
                                     .FirstOrDefaultAsync(x => x.Id == id);
@@ -61,7 +61,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new NotFoundResult();
             }
 
-            var comentarioDTO = _mapper.Map<ComentarioConLibroDTO>(comentario);
+            ComentarioConLibroDTO comentarioDTO = _mapper.Map<ComentarioConLibroDTO>(comentario);
             return comentarioDTO;
         }
 
@@ -72,13 +72,13 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new NotFoundResult();
             }
 
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
+            Usuario? usuario = await _servicioUsuarios.ObtenerUsuario();
             if (UserUtils.ExisteUsuario(usuario))
             {
                 return new NotFoundResult();
             }
 
-            var comentario = _mapper.Map<Comentario>(comentarioCreacionDTO);
+            Comentario comentario = _mapper.Map<Comentario>(comentarioCreacionDTO);
             comentario.LibroId = libroId;
             comentario.FechaPublicacion = DateTime.UtcNow;
             comentario.UsuarioId = usuario!.Id;
@@ -86,7 +86,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             await _context.SaveChangesAsync();
 
             await _outputCacheStore.EvictByTagAsync(CACHE_COMENTARIOS, default);
-            var comentarioDTO = _mapper.Map<ComentarioDTO>(comentario);
+            ComentarioDTO comentarioDTO = _mapper.Map<ComentarioDTO>(comentario);
             return new CreatedAtRouteResult("ObtenerComentarioV1", new { id = comentario.Id, libroId }, comentarioDTO);
         }
         public async Task<ActionResult> ActualizarComentario(int id, AutorCreacionDTO autorCreacionDTO)
@@ -142,7 +142,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new NotFoundResult();
             }
 
-            var comentarioDB = await _context.Comentarios.FirstOrDefaultAsync(c => c.Id == id);
+            Comentario? comentarioDB = await _context.Comentarios.FirstOrDefaultAsync(c => c.Id == id);
             ActionResult result = await ComentarioUtils.ValidarComentario(_servicioUsuarios, comentarioDB);
 
             if (result.GetType() == typeof(NoContentResult))

@@ -15,8 +15,8 @@ namespace BibliotecasAPI.BLL.Services.Impl
 
         public async Task<string> Almacenar(string? contenedor, IFormFile archivo)
         {
-            var extension = Path.GetExtension(archivo.FileName);
-            var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+            string extension = Path.GetExtension(archivo.FileName);
+            string nombreArchivo = $"{Guid.NewGuid()}{extension}";
             string folder = Path.Combine(_environment.WebRootPath, contenedor!);
 
             if (!Directory.Exists(folder))
@@ -26,15 +26,15 @@ namespace BibliotecasAPI.BLL.Services.Impl
 
             string ruta = Path.Combine(folder, nombreArchivo);
 
-            using (var ms = new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
                 await archivo.CopyToAsync(ms);
-                var contenido = ms.ToArray();
+                byte[] contenido = ms.ToArray();
                 await File.WriteAllBytesAsync(ruta, contenido);
             }
-            var request = _httpContextAccessor.HttpContext!.Request;
-            var url = $"{request.Scheme}://{request.Host}";
-            var urlArchivo = Path.Combine(url, contenedor!, nombreArchivo).Replace("\\", "/");
+            HttpRequest request = _httpContextAccessor.HttpContext!.Request;
+            string url = $"{request.Scheme}://{request.Host}";
+            string urlArchivo = Path.Combine(url, contenedor!, nombreArchivo).Replace("\\", "/");
             
             return urlArchivo;
         }
@@ -46,9 +46,9 @@ namespace BibliotecasAPI.BLL.Services.Impl
                 return Task.CompletedTask;
             }
 
-            var nombreArchivo = Path.GetFileName(ruta);
+            string nombreArchivo = Path.GetFileName(ruta);
 
-            var directorioArchivo = Path.Combine(_environment.WebRootPath, contenedor, nombreArchivo);
+            string directorioArchivo = Path.Combine(_environment.WebRootPath, contenedor, nombreArchivo);
 
             if (File.Exists(directorioArchivo)) 
             {

@@ -16,14 +16,14 @@ namespace BibliotecasAPI.BLL.Services.Impl
         }
         public async Task<string> Almacenar(string? contenedor, IFormFile archivo)
         {
-            var cliente = new BlobContainerClient(connectionString, contenedor);
+            BlobContainerClient cliente = new BlobContainerClient(connectionString, contenedor);
             await cliente.CreateIfNotExistsAsync();
             cliente.SetAccessPolicy(PublicAccessType.Blob);
 
-            var extension = Path.GetExtension(archivo.FileName);
-            var nombreArchivo = $"{Guid.NewGuid()}{extension}";
-            var blob = cliente.GetBlobClient(nombreArchivo);
-            var blobHttpHeaders = new BlobHttpHeaders();
+            string extension = Path.GetExtension(archivo.FileName);
+            string nombreArchivo = $"{Guid.NewGuid()}{extension}";
+            BlobClient blob = cliente.GetBlobClient(nombreArchivo);
+            BlobHttpHeaders blobHttpHeaders = new BlobHttpHeaders();
             blobHttpHeaders.ContentType = archivo.ContentType;
             await blob.UploadAsync(archivo.OpenReadStream(), blobHttpHeaders);
             return blob.Uri.ToString();
@@ -35,11 +35,11 @@ namespace BibliotecasAPI.BLL.Services.Impl
             {
                 return;
             }
-            var cliente = new BlobContainerClient(connectionString, contenedor);
+            BlobContainerClient cliente = new BlobContainerClient(connectionString, contenedor);
             await cliente.CreateIfNotExistsAsync();
 
-            var nombreArchivo = Path.GetFileName(ruta);
-            var blob = cliente.GetBlobClient(nombreArchivo);
+            string nombreArchivo = Path.GetFileName(ruta);
+            BlobClient blob = cliente.GetBlobClient(nombreArchivo);
             await blob.DeleteIfExistsAsync();
 
         }

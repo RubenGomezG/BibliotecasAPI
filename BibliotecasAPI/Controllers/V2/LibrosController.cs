@@ -23,7 +23,7 @@ namespace BibliotecasAPI.Controllers.V2
             _servicioLibros = servicioLibros;
         }
 
-        [HttpGet(Name = "ObtenerLibrosV1")]
+        [HttpGet(Name = "ObtenerLibrosV2")]
         [AllowAnonymous]
         [OutputCache(Tags = [CACHE_LIBROS])]
         public async Task<IEnumerable<LibroConAutoresDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
