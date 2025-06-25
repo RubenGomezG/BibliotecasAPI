@@ -16,7 +16,7 @@ namespace BibliotecasAPI.Controllers.V2
             _authorizationService = authorizationService;
         }
 
-        [HttpGet(Name = "ObtenerRootV1")]
+        [HttpGet(Name = "ObtenerRootV2")]
         [AllowAnonymous]
         public async Task<IEnumerable<DatosHateoasDTO>> Get()
         {
