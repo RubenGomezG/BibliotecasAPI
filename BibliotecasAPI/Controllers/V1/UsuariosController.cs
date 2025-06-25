@@ -28,15 +28,13 @@ namespace BibliotecasAPI.Controllers.V1
         private readonly IServicioUsuarios _servicioUsuarios;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IServicioLlaves _servicioLlaves;
 
         public UsuariosController(UserManager<Usuario> userManager,
             IConfiguration configuration,
             SignInManager<Usuario> signInManager,
             IServicioUsuarios servicioUsuarios,
             ApplicationDbContext context,
-            IMapper mapper,
-            IServicioLlaves servicioLlaves)
+            IMapper mapper)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -44,7 +42,6 @@ namespace BibliotecasAPI.Controllers.V1
             _servicioUsuarios = servicioUsuarios;
             _context = context;
             _mapper = mapper;
-            _servicioLlaves = servicioLlaves;
         }
 
         [HttpPost("registro", Name = "RegistrarV1")]
@@ -61,7 +58,7 @@ namespace BibliotecasAPI.Controllers.V1
             if (resultado.Succeeded)
             {
                 var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
-                await _servicioLlaves.CrearLlave(usuario.Id, TipoLlave.Gratuita);
+                await LlaveApiUtils.CrearLlave(_context, usuario.Id, TipoLlave.Gratuita);
                 return respuestaAutenticacion;
             }
             else

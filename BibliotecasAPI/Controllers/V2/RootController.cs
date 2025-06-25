@@ -9,24 +9,25 @@ namespace BibliotecasAPI.Controllers.V2
     [Authorize]
     public class RootController : ControllerBase
     {
-        private readonly IAuthorizationService authorizationService;
+        private readonly IAuthorizationService _authorizationService;
 
         public RootController(IAuthorizationService authorizationService)
         {
-            this.authorizationService = authorizationService;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet(Name = "ObtenerRootV1")]
         [AllowAnonymous]
         public async Task<IEnumerable<DatosHateoasDTO>> Get()
         {
-            var esAdmin = await authorizationService.AuthorizeAsync(User, "esAdmin");
-            var datosHateoas = new List<DatosHateoasDTO>();
-            datosHateoas.Add(new DatosHateoasDTO(Link: Url.Link("ObtenerRootV2", new { })!, Descripcion: "self", MetodoHTTP: "GET"));
-            datosHateoas.Add(new DatosHateoasDTO(Link: Url.Link("ObtenerAutoresV2", new { })!, Descripcion: "autores-obtener", MetodoHTTP: "GET"));
-            
-            datosHateoas.Add(new DatosHateoasDTO(Link: Url.Link("RegistrarV2", new { })!, Descripcion: "usuario-registrar", MetodoHTTP: "POST"));
-            datosHateoas.Add(new DatosHateoasDTO(Link: Url.Link("LoginV2", new { })!, Descripcion: "usuario-login", MetodoHTTP: "POST"));
+            AuthorizationResult esAdmin = await _authorizationService.AuthorizeAsync(User, "esAdmin");
+            List<DatosHateoasDTO> datosHateoas =
+            [
+                new DatosHateoasDTO(Link: Url.Link("ObtenerRootV2", new { })!, Descripcion: "self", MetodoHTTP: "GET"),
+                new DatosHateoasDTO(Link: Url.Link("ObtenerAutoresV2", new { })!, Descripcion: "autores-obtener", MetodoHTTP: "GET"),
+                new DatosHateoasDTO(Link: Url.Link("RegistrarV2", new { })!, Descripcion: "usuario-registrar", MetodoHTTP: "POST"),
+                new DatosHateoasDTO(Link: Url.Link("LoginV2", new { })!, Descripcion: "usuario-login", MetodoHTTP: "POST"),
+            ];
             
 
             if (esAdmin.Succeeded)

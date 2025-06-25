@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BibliotecasAPI.Utils.Validation
 {
-    public static class LlaveApiUtils
+    public static class LlaveApiValidation
     {
         public static ActionResult ValidarLlaveAPI(IServicioUsuarios servicioUsuarios, LlaveAPI? llaveDB)
         {

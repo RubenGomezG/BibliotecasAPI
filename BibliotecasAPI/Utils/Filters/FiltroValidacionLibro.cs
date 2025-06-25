@@ -21,13 +21,13 @@ namespace BibliotecasAPI.Utils.Filters
                 value is not LibroCreacionDTO libroCreacionDTO)
             {
                 context.ModelState.AddModelError(string.Empty, ERROR_NO_LIBROS_SIN_AUTOR);
-                context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
+                context.Result = context.ModelState.ConstruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
             if (libroCreacionDTO.AutoresIds == null || libroCreacionDTO.AutoresIds.Count == 0)
             {
                 context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), ERROR_NO_LIBROS_SIN_AUTOR);
-                context.Result = context.ModelState.ContruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
+                context.Result = context.ModelState.ConstruirProblemDetail(ERROR_NO_LIBROS_SIN_AUTOR);
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace BibliotecasAPI.Utils.Filters
             {
                 IEnumerable<int> autoresNoExisten = libroCreacionDTO.AutoresIds.Except(autoresIdsExisten);
                 context.ModelState.AddModelError(nameof(libroCreacionDTO.AutoresIds), $"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
-                context.Result = context.ModelState.ContruirProblemDetail($"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
+                context.Result = context.ModelState.ConstruirProblemDetail($"Los siguientes autores {string.Join(',', autoresNoExisten)} no existen.");
                 return;
             }
 

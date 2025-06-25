@@ -70,20 +70,26 @@ builder.Services.AddScoped<HateoasAutoresAttribute>();
 builder.Services.AddHostedService<FacturasBackgroundService>();
 
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
-builder.Services.AddScoped<IServicioLlaves, ServicioLlaves>();
 builder.Services.AddTransient<IServicioAutores, ServicioAutores>();
 builder.Services.AddTransient<IServicioAutoresV2, ServicioAutoresV2>();
-builder.Services.AddTransient<IServicioComentarios, ServicioComentarios>();
 builder.Services.AddTransient<IServicioAutoresColeccion, ServicioAutoresColeccion>();
+builder.Services.AddTransient<IServicioComentarios, ServicioComentarios>();
 builder.Services.AddTransient<IServicioLibros, ServicioLibros>();
+builder.Services.AddTransient<IServicioFacturas, ServicioFacturas>();
+builder.Services.AddTransient<IRepositorioRestriccionesIp, RepositorioRestriccionesIp>();
+builder.Services.AddTransient<IRepositorioRestriccionesDominio, RepositorioRestriccionesDominio>();
 builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 //builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosAzure>();
+builder.Services.AddScoped<IServicioLlaves, ServicioLlaves>();
 
 builder.Services.AddTransient<IRepositorioUsuarios, RepositorioUsuarios>();
 builder.Services.AddTransient<IRepositorioAutores, RepositorioAutores>();
 builder.Services.AddTransient<IRepositorioAutoresColeccion, RepositorioAutoresColeccion>();
 builder.Services.AddTransient<IRepositorioComentarios, RepositorioComentarios>();
 builder.Services.AddTransient<IRepositorioLibros, RepositorioLibros>();
+builder.Services.AddTransient<IRepositorioFacturas, RepositorioFacturas>();
+builder.Services.AddTransient<IRepositorioRestriccionesIp, RepositorioRestriccionesIp>();
+builder.Services.AddTransient<IRepositorioRestriccionesDominio, RepositorioRestriccionesDominio>();
 builder.Services.AddScoped<IRepositorioLlaves, RepositorioLlaves>();
 
 builder.Services.AddHttpContextAccessor();

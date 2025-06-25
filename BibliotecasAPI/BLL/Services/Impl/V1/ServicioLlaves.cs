@@ -1,6 +1,8 @@
 ﻿using BibliotecasAPI.BLL.Repositories.Interfaces;
 using BibliotecasAPI.BLL.Services.Interfaces.V1;
+using BibliotecasAPI.DAL.DTOs.LlaveDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace BibliotecasAPI.BLL.Services.Impl.V1
@@ -13,14 +15,29 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
         {
             _repositorioLlaves = repositorioLlaves;
         }
-        public async Task<LlaveAPI> CrearLlave(string usuarioId, TipoLlave tipoLlave)
+        
+        public async Task<IEnumerable<LlaveDTO>> ObtenerLlaves()
         {
-            return await _repositorioLlaves.CrearLlave(usuarioId, tipoLlave);
+            return await _repositorioLlaves.ObtenerLlaves();
+        }
+        public async Task<ActionResult<LlaveDTO>> ObtenerLlavePorId(int id)
+        {
+            return await _repositorioLlaves.ObtenerLlavePorId(id);
+        }
+        public async Task<ActionResult> AnadirLlave(LlaveCreacionDTO llave, string nombreEndpoint)
+        {
+            return await _repositorioLlaves.AnadirLlave(llave, nombreEndpoint);
         }
 
-        public string GenerarLlave()
+        public async Task<ActionResult> ActualizarLlave(int id, LlaveActualizacionDTO llave)
         {
-            return _repositorioLlaves.GenerarLlave();
+            return await _repositorioLlaves.ActualizarLlave(id, llave);
         }
+
+        public async Task<ActionResult> BorrarLlave(int id)
+        {
+            return await _repositorioLlaves.BorrarLlave(id);
+        }
+
     }
 }

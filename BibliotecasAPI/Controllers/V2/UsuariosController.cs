@@ -3,6 +3,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -44,16 +45,16 @@ namespace BibliotecasAPI.Controllers.V2
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var usuario = new Usuario
+            Usuario usuario = new Usuario
             {
                 UserName = credencialesUsuarioDTO.Email,
                 Email = credencialesUsuarioDTO?.Email
             };
 
-            var resultado = await _userManager.CreateAsync(usuario, credencialesUsuarioDTO!.Password!);
+            IdentityResult resultado = await _userManager.CreateAsync(usuario, credencialesUsuarioDTO!.Password!);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
+                RespuestaAutenticacionDTO respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
                 return respuestaAutenticacion;
             }
             else
@@ -71,22 +72,22 @@ namespace BibliotecasAPI.Controllers.V2
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+            Usuario? usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
 
             if (usuario is null)
             {
-                return RetornarLoginIncorrecto();   
+                return ModelState.RetornarLoginIncorrecto();   
             }
 
-            var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, credencialesUsuarioDTO!.Password!, lockoutOnFailure: false);
+            Microsoft.AspNetCore.Identity.SignInResult resultado = await _signInManager.CheckPasswordSignInAsync(usuario, credencialesUsuarioDTO!.Password!, lockoutOnFailure: false);
             if (resultado.Succeeded)
             {
-                var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
+                RespuestaAutenticacionDTO respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTO);
                 return respuestaAutenticacion;
             }
             else
             {
-                return RetornarLoginIncorrecto();
+                return ModelState.RetornarLoginIncorrecto();
             }
         }
 
@@ -94,8 +95,8 @@ namespace BibliotecasAPI.Controllers.V2
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult<IEnumerable<UsuarioDTO>>> Get()
         {
-            var usuarios = await _context.Users.ToListAsync();
-            var usuariosDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
+            List<Usuario> usuarios = await _context.Users.ToListAsync();
+            IEnumerable<UsuarioDTO> usuariosDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
             return Ok(usuariosDTO);
         }
 
@@ -103,7 +104,7 @@ namespace BibliotecasAPI.Controllers.V2
         [Authorize]
         public async Task<ActionResult> Put(ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
+            Usuario? usuario = await _servicioUsuarios.ObtenerUsuario();
 
             if (usuario is null)
             {
@@ -120,14 +121,14 @@ namespace BibliotecasAPI.Controllers.V2
         [Authorize]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> RenovarToken()
         {
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
+            Usuario? usuario = await _servicioUsuarios.ObtenerUsuario();
             if (usuario is null)
             {
                 return NotFound();
             }
-            var credencialesUsuarioDTo = new CredencialesUsuarioDTO { Email = usuario.Email! };
+            CredencialesUsuarioDTO credencialesUsuarioDTo = new CredencialesUsuarioDTO { Email = usuario.Email! };
 
-            var respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTo);
+            RespuestaAutenticacionDTO respuestaAutenticacion = await ConstruirToken(credencialesUsuarioDTo);
             return respuestaAutenticacion;
         }
 
@@ -135,7 +136,7 @@ namespace BibliotecasAPI.Controllers.V2
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
+            Usuario? usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
 
             if (usuario == null)
             {
@@ -150,7 +151,7 @@ namespace BibliotecasAPI.Controllers.V2
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> QuitarAdmin(EditarClaimDTO editarClaimDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
+            Usuario? usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
 
             if (usuario == null)
             {
@@ -161,33 +162,27 @@ namespace BibliotecasAPI.Controllers.V2
             return NoContent();
         }
 
-        private ActionResult RetornarLoginIncorrecto()
-        {
-            ModelState.AddModelError(string.Empty, "Login Incorrecto");
-            return ValidationProblem();
-        }
-
         private async Task<RespuestaAutenticacionDTO> ConstruirToken(CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var claims = new List<Claim> 
+            List<Claim> claims = new List<Claim>
             {
                 new Claim("email", credencialesUsuarioDTO.Email),
                 new Claim("almudena", "rosi")
             };
 
-            var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
-            var claimsDB = await _userManager.GetClaimsAsync(usuario!);
+            Usuario? usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
+            IList<Claim> claimsDB = await _userManager.GetClaimsAsync(usuario!);
             claims.AddRange(claimsDB);
 
-            var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["LlaveJWT"]!));
-            var credenciales = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
+            SymmetricSecurityKey llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["LlaveJWT"]!));
+            SigningCredentials credenciales = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
 
-            var expiracion = DateTime.UtcNow.AddYears(1);
+            DateTime expiracion = DateTime.UtcNow.AddYears(1);
 
-            var tokenDeSeguridad = new JwtSecurityToken(issuer: null, audience: null,
+            JwtSecurityToken tokenDeSeguridad = new JwtSecurityToken(issuer: null, audience: null,
                 claims: claims, expires: expiracion, signingCredentials: credenciales);
 
-            var token = new JwtSecurityTokenHandler().WriteToken(tokenDeSeguridad);
+            string token = new JwtSecurityTokenHandler().WriteToken(tokenDeSeguridad);
             return new RespuestaAutenticacionDTO
             {
                 Token = token,

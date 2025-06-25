@@ -24,7 +24,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         {
             LlaveAPI? llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == restriccion.LlaveId);
 
-            ActionResult result = LlaveApiUtils.ValidarLlaveAPI(_servicioUsuarios, llaveDB);
+            ActionResult result = LlaveApiValidation.ValidarLlaveAPI(_servicioUsuarios, llaveDB);
             if (result.GetType() == typeof(NoContentResult))
             {
                 RestriccionDominio restriccionDominio = new RestriccionDominio

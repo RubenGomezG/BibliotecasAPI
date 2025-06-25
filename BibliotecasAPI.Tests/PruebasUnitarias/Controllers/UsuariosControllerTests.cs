@@ -46,12 +46,11 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
 
             httpContextAccessor = Substitute.For<IHttpContextAccessor>();
             servicioUsuarios = Substitute.For<IServicioUsuarios>();
-            servicioLlaves = Substitute.For<IServicioLlaves>();
             IUserClaimsPrincipalFactory<Usuario> userClaimsFactory = Substitute.For<IUserClaimsPrincipalFactory<Usuario>>();
             signInManager = Substitute.For<SignInManager<Usuario>>(userManager, httpContextAccessor,
                 userClaimsFactory, null, null, null, null);
 
-            controller = new UsuariosController(userManager, configuration, signInManager, servicioUsuarios, context, mapper, servicioLlaves);
+            controller = new UsuariosController(userManager, configuration, signInManager, servicioUsuarios, context, mapper);
         }
 
         [TestMethod]
