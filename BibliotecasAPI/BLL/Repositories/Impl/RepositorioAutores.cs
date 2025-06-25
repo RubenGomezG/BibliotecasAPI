@@ -4,8 +4,12 @@ using BibliotecasAPI.BLL.Services.Interfaces;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
+using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using BibliotecasAPI.Utils;
+using BibliotecasAPI.Utils.ClassUtils;
 using BibliotecasAPI.Utils.Extensions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
@@ -138,7 +142,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
         }
 
-        public async Task<AutorConLibrosDTO> GetAutorPorId(int id)
+        public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorId(int id)
         {
             var autor = await _context.Autores
                 .Include(a => a.Libros)
@@ -147,11 +151,11 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
             if (autor is null)
             {
-                return null!;
+                return new NotFoundResult();
             }
 
             var autorDTO = _mapper.Map<AutorConLibrosDTO>(autor);
-            return autorDTO;
+            return new OkObjectResult(autorDTO);
         }
 
         public async Task<ActionResult<AutorConLibrosDTO>> GetAutorPorIdV2(int id, bool incluirLibros = false)
@@ -225,8 +229,34 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
             return new NotFoundResult();
         }
+        public async Task<ActionResult> PatchAutor(int id, JsonPatchDocument<AutorPatchDTO> patchDoc) 
+        {
+            if (patchDoc is null)
+            {
+                return new BadRequestResult();
+            }
 
-        
+            var autorDB = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (autorDB is null)
+            {
+                return new NotFoundResult();
+            }
+
+            var autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
+            Controller? controller = _httpContextAccessor.HttpContext!.GetEndpoint()!.Metadata.GetMetadata<Controller>();
+            patchDoc.ApplyTo(autorPatchDTO, controller!.ModelState);
+
+            if (!controller.TryValidateModel(autorPatchDTO))
+            {
+                return controller.ValidationProblem();
+            }
+
+            _mapper.Map(autorPatchDTO, autorDB);
+            await _context.SaveChangesAsync();
+            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
+            return new NoContentResult();
+        }
 
         public async Task<ActionResult> BorrarAutor(int id)
         {

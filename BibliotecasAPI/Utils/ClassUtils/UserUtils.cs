@@ -1,6 +1,7 @@
 ﻿using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -37,6 +38,11 @@ namespace BibliotecasAPI.Utils.ClassUtils
                 Token = token,
                 FechaExpiracion = expiracion,
             };
+        }
+
+        public static bool ExisteUsuario(Usuario? usuario)
+        {
+            return usuario != null;
         }
     }
 }

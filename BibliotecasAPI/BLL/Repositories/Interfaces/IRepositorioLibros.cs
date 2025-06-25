@@ -8,7 +8,7 @@ namespace BibliotecasAPI.BLL.Repositories.Interfaces
     {
         public Task<IEnumerable<LibroConAutoresDTO>> GetLibros(PaginacionDTO paginacionDTO);
         public Task<ActionResult<LibroConAutoresDTO>> GetLibroPorId(int id);
-        public Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO);
+        public Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO, string nombreEndpoint);
         public Task<ActionResult> ActualizarLibro(int id, LibroCreacionDTO libroCreacionDTO);
         public Task<ActionResult> BorrarLibro(int id);
     }

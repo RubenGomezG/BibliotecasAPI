@@ -10,7 +10,6 @@ namespace BibliotecasAPI.Controllers.V1
     [Route("api/v1/autores-coleccion")]
     public class AutoresColeccionController : ControllerBase
     {
-
         private readonly IServicioAutoresColeccion _servicioAutoresColeccion;
 
         public AutoresColeccionController(IServicioAutoresColeccion servicioAutoresColeccion)
@@ -27,7 +26,7 @@ namespace BibliotecasAPI.Controllers.V1
         [HttpPost(Name = "CrearAutoresV1")]
         public async Task<ActionResult> Post(IEnumerable<AutorCreacionDTO> autoresCreacionDTO)
         {
-            return await _servicioAutoresColeccion.AnadirVariosAutores(autoresCreacionDTO);
+            return await _servicioAutoresColeccion.AnadirVariosAutores(autoresCreacionDTO, "ObtenerAutoresPorIdsV1");
         }
     }
 }

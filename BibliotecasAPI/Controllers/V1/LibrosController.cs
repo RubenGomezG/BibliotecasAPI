@@ -1,16 +1,10 @@
-﻿using AutoMapper;
-using BibliotecasAPI.BLL.Services.Interfaces.V1;
-using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.LibroDTOs;
-using BibliotecasAPI.DAL.Model.Entidades;
-using BibliotecasAPI.Utils.Extensions;
 using BibliotecasAPI.Utils.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace BibliotecasAPI.Controllers.V1
 {
@@ -47,7 +41,7 @@ namespace BibliotecasAPI.Controllers.V1
         [ServiceFilter<FiltroValidacionLibro>()]
         public async Task<ActionResult> Post(LibroCreacionDTO libroCreacionDTO)
         {
-            return await _servicioLibros.AnadirLibro(libroCreacionDTO);
+            return await _servicioLibros.AnadirLibro(libroCreacionDTO, "ObtenerLibroV1");
         }
 
         [HttpPut("{id:int}", Name = "ActualizarLibroV1")] //Put/api/libros/{id}

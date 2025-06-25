@@ -65,42 +65,7 @@ namespace BibliotecasAPI.Controllers.V1
         [HttpPatch("{id}", Name = "PatchComentarioV1")]
         public async Task<ActionResult> Patch(Guid id, int libroId, JsonPatchDocument<ComentarioPatchDTO> patchDoc)
         {
-            if (patchDoc is null)
-            {
-                return BadRequest();
-            }
-            if (!await LibroUtils.ExisteLibro(_context, libroId))
-            {
-                return NotFound();
-            }
-
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            var comentarioDB = await _context.Comentarios.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (comentarioDB is null)
-            {
-                return NotFound();
-            }
-
-            if (comentarioDB.UsuarioId != usuario.Id)
-            {
-                return Forbid();
-            }
-
-            var comentarioPatchDTO = _mapper.Map<ComentarioPatchDTO>(comentarioDB);
-            patchDoc.ApplyTo(comentarioPatchDTO, ModelState);
-
-            if (!TryValidateModel(comentarioPatchDTO))
-            {
-                return ValidationProblem();
-            }
-
-            return await _servicioComentarios.PatchComentario(comentarioDB, comentarioPatchDTO);
+            return await _servicioComentarios.PatchComentario(id, libroId, patchDoc);
         }
 
 

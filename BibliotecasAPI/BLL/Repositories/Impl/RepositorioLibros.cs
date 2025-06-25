@@ -62,7 +62,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             return libroDTO;
         }
 
-        public async Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO)
+        public async Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO, string nombreEndpoint)
         {
             var libro = _mapper.Map<Libro>(libroCreacionDTO);
             LibroUtils.AsignarOrdenAutores(libro);
@@ -72,7 +72,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             await _outputCacheStore.EvictByTagAsync(CACHE_LIBROS, default);
 
             var libroDTO = _mapper.Map<LibroDTO>(libro);
-            return new CreatedAtRouteResult("ObtenerLibroV1", new { id = libro.Id }, libroDTO);
+            return new CreatedAtRouteResult(nombreEndpoint, new { id = libro.Id }, libroDTO);
         }
 
         public async Task<ActionResult> ActualizarLibro(int id, LibroCreacionDTO libroCreacionDTO)

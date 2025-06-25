@@ -6,6 +6,8 @@ using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils;
+using BibliotecasAPI.Utils.ClassUtils;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
@@ -18,15 +20,17 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         private readonly IMapper _mapper;
         private readonly IServicioUsuarios _servicioUsuarios;
         private readonly IOutputCacheStore _outputCacheStore;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private const string CACHE_COMENTARIOS = "comentarios-obtener";
 
         public RepositorioComentarios(ApplicationDbContext context, IMapper mapper, IServicioUsuarios servicioUsuarios,
-            IOutputCacheStore outputCacheStore)
+            IOutputCacheStore outputCacheStore, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
             _servicioUsuarios = servicioUsuarios;
             _outputCacheStore = outputCacheStore;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ActionResult<IEnumerable<ComentarioDTO>>> GetComentariosDeLibro(int libroId)
@@ -52,7 +56,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                                     .Include(c => c.Libro)
                                     .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (comentario is null)
+            if (ComentarioUtils.ExisteComentario(comentario))
             {
                 return new NotFoundResult();
             }
@@ -69,7 +73,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
 
             var usuario = await _servicioUsuarios.ObtenerUsuario();
-            if (usuario == null)
+            if (UserUtils.ExisteUsuario(usuario))
             {
                 return new NotFoundResult();
             }
@@ -77,7 +81,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             var comentario = _mapper.Map<Comentario>(comentarioCreacionDTO);
             comentario.LibroId = libroId;
             comentario.FechaPublicacion = DateTime.UtcNow;
-            comentario.UsuarioId = usuario.Id;
+            comentario.UsuarioId = usuario!.Id;
             _context.Add(comentario);
             await _context.SaveChangesAsync();
 
@@ -99,13 +103,36 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             return new NotFoundResult();
         }
 
-        public async Task<ActionResult> PatchComentario(Comentario comentarioDB, ComentarioPatchDTO comentarioPatchDTO)
+        public async Task<ActionResult> PatchComentario(Guid id, int libroId, JsonPatchDocument<ComentarioPatchDTO> patchDoc)
         {
-            _mapper.Map(comentarioPatchDTO, comentarioDB);
-            await _context.SaveChangesAsync();
-            await _outputCacheStore.EvictByTagAsync(CACHE_COMENTARIOS, default);
+            if (patchDoc is null)
+            {
+                return new BadRequestResult();
+            }
+            if (!await LibroUtils.ExisteLibro(_context, libroId))
+            {
+                return new NotFoundResult();
+            }
 
-            return new NoContentResult();
+            var usuario = await _servicioUsuarios.ObtenerUsuario();
+            Comentario? comentarioDB = await _context.Comentarios.FirstOrDefaultAsync(a => a.Id == id);
+            ActionResult result = await ComentarioUtils.ValidarComentario(_servicioUsuarios, comentarioDB);
+            if (result.GetType() == typeof(NoContentResult))
+            {
+                var comentarioPatchDTO = _mapper.Map<ComentarioPatchDTO>(comentarioDB);
+                Controller? controller = _httpContextAccessor.HttpContext!.GetEndpoint()!.Metadata.GetMetadata<Controller>();
+                patchDoc.ApplyTo(comentarioPatchDTO, controller!.ModelState);
+
+                if (!controller.TryValidateModel(comentarioPatchDTO))
+                {
+                    return controller.ValidationProblem();
+                }
+                _mapper.Map(comentarioPatchDTO, comentarioDB);
+                await _context.SaveChangesAsync();
+                await _outputCacheStore.EvictByTagAsync(CACHE_COMENTARIOS, default);
+            }
+
+            return result;
         }
 
         public async Task<ActionResult> BorradoLogicoComentario(Guid id, int libroId)
@@ -115,39 +142,27 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 return new NotFoundResult();
             }
 
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
-            if (usuario == null)
-            {
-                return new NotFoundResult();
-            }
-
             var comentarioDB = await _context.Comentarios.FirstOrDefaultAsync(c => c.Id == id);
+            ActionResult result = await ComentarioUtils.ValidarComentario(_servicioUsuarios, comentarioDB);
 
-            if (comentarioDB is null)
+            if (result.GetType() == typeof(NoContentResult))
             {
-                return new NotFoundResult();
+                //--------------Borrado Físico---------------
+                //var registrosBorrados = await _context.Comentarios.Where(a => a.Id == id).ExecuteDeleteAsync();
+
+                //if (registrosBorrados == 0)
+                //{
+                //    return NotFound();
+                //}
+
+                //--------------Borrado Lógico---------------
+                comentarioDB!.Eliminado = true;
+                _context.Update(comentarioDB);
+                await _context.SaveChangesAsync();
+                await _outputCacheStore.EvictByTagAsync(CACHE_COMENTARIOS, default);
             }
-
-            if (comentarioDB.UsuarioId != usuario.Id)
-            {
-                return new ForbidResult();
-            }
-
-            //--------------Borrado Físico---------------
-            //var registrosBorrados = await _context.Comentarios.Where(a => a.Id == id).ExecuteDeleteAsync();
-
-            //if (registrosBorrados == 0)
-            //{
-            //    return NotFound();
-            //}
-
-            //--------------Borrado Lógico---------------
-            comentarioDB.Eliminado = true;
-            _context.Update(comentarioDB);
-            await _context.SaveChangesAsync();
-            await _outputCacheStore.EvictByTagAsync(CACHE_COMENTARIOS, default);
-
-            return new NoContentResult();
+            
+            return result;
         }
     }
 }

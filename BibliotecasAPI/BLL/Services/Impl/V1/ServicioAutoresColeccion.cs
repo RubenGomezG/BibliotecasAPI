@@ -13,9 +13,9 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
         {
             _repositorioAutoresColeccion = repositorioAutoresColeccion;
         }
-        public async Task<ActionResult> AnadirVariosAutores(IEnumerable<AutorCreacionDTO> autoresCreacionDTO)
+        public async Task<ActionResult> AnadirVariosAutores(IEnumerable<AutorCreacionDTO> autoresCreacionDTO, string nombreEndpoint)
         {
-            return await _repositorioAutoresColeccion.AnadirVariosAutores(autoresCreacionDTO);
+            return await _repositorioAutoresColeccion.AnadirVariosAutores(autoresCreacionDTO, nombreEndpoint);
         }
 
         public async Task<ActionResult<List<AutorConLibrosDTO>>> ObtenerAutoresPorIds(string ids)

@@ -1,15 +1,11 @@
-﻿using AutoMapper;
-using BibliotecasAPI.BLL.Services.Interfaces.V2;
-using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
-using BibliotecasAPI.DAL.Model.Entidades;
-using BibliotecasAPI.Utils.Filters;
+using BibliotecasAPI.Utils.Filters.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.Controllers.V2
 {
@@ -18,36 +14,19 @@ namespace BibliotecasAPI.Controllers.V2
     [Route("api/v2/autores")]    
     public class AutoresController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
         private readonly IServicioAutoresV2 _servicioAutoresV2;
-        private readonly IOutputCacheStore _outputCacheStore;
-        private const string CACHE_AUTORES = "autores-obtener";
 
-
-        public AutoresController(ApplicationDbContext context, IMapper mapper,
-             IServicioAutoresV2 servicioAutoresV2,
-             IOutputCacheStore outputCacheStore)
+        public AutoresController(IServicioAutoresV2 servicioAutoresV2)
         {
-            _context = context;
-            _mapper = mapper;
             _servicioAutoresV2 = servicioAutoresV2;
-            _outputCacheStore = outputCacheStore;
         }
-        
-        [HttpGet] // api/autores
-        [AllowAnonymous]        
+
+        [HttpGet(Name = "ObtenerAutoresV2")] // api/autores
+        [AllowAnonymous]
+        [ServiceFilter<HateoasAutoresAttribute>()]
         public async Task<IEnumerable<AutorDTO>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             return await _servicioAutoresV2.GetAutores(paginacionDTO);
-        }
-
-        [HttpGet("filtrar")]
-        [AllowAnonymous]
-        public async Task<ActionResult> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
-        {
-            var autores = await _servicioAutoresV2.Filtrar(autorFiltroDTO);
-            return Ok(autores);
         }
 
         [HttpGet("{id:int}", Name = "ObtenerAutorV2")] // api/autores/id
@@ -60,6 +39,14 @@ namespace BibliotecasAPI.Controllers.V2
         public async Task<ActionResult<AutorConLibrosDTO>> Get(int id, bool incluirLibros = false)
         {
             return await _servicioAutoresV2.GetAutorPorIdV2(id, incluirLibros);
+        }
+
+        [HttpGet("filtrar")]
+        [AllowAnonymous]
+        public async Task<ActionResult> Filtrar([FromQuery] AutorFiltroDTO autorFiltroDTO)
+        {
+            var autores = await _servicioAutoresV2.Filtrar(autorFiltroDTO);
+            return Ok(autores);
         }
 
         [HttpPost]
@@ -83,30 +70,7 @@ namespace BibliotecasAPI.Controllers.V2
         [HttpPatch("{id:int}")]
         public async Task<ActionResult> Patch(int id, JsonPatchDocument<AutorPatchDTO> patchDoc)
         {
-            if (patchDoc is null)
-            {
-                return BadRequest();
-            }
-
-            var autorDB = await _context.Autores.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (autorDB is null)
-            {
-                return NotFound();
-            }
-
-            var autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
-            patchDoc.ApplyTo(autorPatchDTO, ModelState);
-
-            if (!TryValidateModel(autorPatchDTO))
-            {
-                return ValidationProblem();
-            }
-
-            _mapper.Map(autorPatchDTO, autorDB);
-            await _context.SaveChangesAsync();
-            await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);
-            return new NoContentResult();
+            return await _servicioAutoresV2.PatchAutor(id, patchDoc);
         }
 
         [HttpDelete("{id:int}")] //Put/api/autores/{id}

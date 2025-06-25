@@ -32,8 +32,8 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
         public async Task<IEnumerable<LlaveDTO>> ObtenerLlaves()
         {
-            var usuarioId = _servicioUsuarios.ObtenerUsuarioId();
-            var llaves = await _context.LlavesAPI
+            string? usuarioId = _servicioUsuarios.ObtenerUsuarioId();
+            List<LlaveAPI> llaves = await _context.LlavesAPI
                 .Include(llave => llave.RestriccionesDominio)
                 .Include(llave => llave.RestriccionesIp)
                 .Where(llaves => llaves.UsuarioId == usuarioId)
@@ -44,8 +44,8 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
         public async Task<ActionResult<LlaveDTO>> ObtenerLlavePorId(int id)
         {
-            var usuarioId = _servicioUsuarios.ObtenerUsuarioId();
-            var llave = await _context.LlavesAPI.FirstOrDefaultAsync(llaves => llaves.Id == id);
+            string? usuarioId = _servicioUsuarios.ObtenerUsuarioId();
+            LlaveAPI? llave = await _context.LlavesAPI.FirstOrDefaultAsync(llaves => llaves.Id == id);
 
             ActionResult result = LlaveApiValidation.ValidarLlaveAPI(_servicioUsuarios, llave);
             if (result.GetType() != typeof(NoContentResult))
@@ -58,11 +58,11 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
         public async Task<ActionResult> AnadirLlave(LlaveCreacionDTO llave, string nombreEndpoint)
         {
-            var usuarioId = _servicioUsuarios.ObtenerUsuarioId();
+            string? usuarioId = _servicioUsuarios.ObtenerUsuarioId();
 
             if (llave.TipoLlave == TipoLlave.Gratuita)
             {
-                var tieneLlaveGratuita = await _context.LlavesAPI.AnyAsync(llave => llave.TipoLlave == TipoLlave.Gratuita);
+                bool tieneLlaveGratuita = await _context.LlavesAPI.AnyAsync(llave => llave.TipoLlave == TipoLlave.Gratuita);
 
                 if (tieneLlaveGratuita)
                 {
@@ -72,16 +72,16 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 }
             }
 
-            var llaveAPI = await LlaveApiUtils.CrearLlave(_context, usuarioId!, llave.TipoLlave);
-            var llaveDTO = _mapper.Map<LlaveDTO>(llaveAPI);
+            LlaveAPI llaveAPI = await LlaveApiUtils.CrearLlave(_context, usuarioId!, llave.TipoLlave);
+            LlaveDTO llaveDTO = _mapper.Map<LlaveDTO>(llaveAPI);
             return new CreatedAtRouteResult(nombreEndpoint, new { id = llaveAPI.Id }, llaveDTO);
         }
 
         public async Task<ActionResult> ActualizarLlave(int id, LlaveActualizacionDTO llave)
         {
-            var usuarioId = _servicioUsuarios.ObtenerUsuarioId();
+            string? usuarioId = _servicioUsuarios.ObtenerUsuarioId();
 
-            var llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == id);
+            LlaveAPI? llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == id);
 
             ActionResult result = LlaveApiValidation.ValidarLlaveAPI(_servicioUsuarios, llaveDB);
             if (result.GetType() == typeof(NoContentResult))
@@ -99,7 +99,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
 
         public async Task<ActionResult> BorrarLlave(int id)
         {
-            var llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == id);
+            LlaveAPI? llaveDB = await _context.LlavesAPI.FirstOrDefaultAsync(llave => llave.Id == id);
 
             ActionResult result = LlaveApiValidation.ValidarLlaveAPI(_servicioUsuarios, llaveDB);
             if (result.GetType() == typeof(NoContentResult))

@@ -21,7 +21,6 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         private SignInManager<Usuario> signInManager = null!;
         private UsuariosController controller = null!;
         private IServicioUsuarios servicioUsuarios = null!;
-        private IServicioLlaves servicioLlaves = null!;
         private IMapper mapper = null!;
 
         [TestInitialize]

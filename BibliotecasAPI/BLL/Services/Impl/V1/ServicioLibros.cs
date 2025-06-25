@@ -23,9 +23,9 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
         {
             return await _repositorioLibros.GetLibroPorId(id);
         }
-        public async Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO) 
+        public async Task<ActionResult> AnadirLibro(LibroCreacionDTO libroCreacionDTO, string nombreEndpoint) 
         {
-            return await _repositorioLibros.AnadirLibro(libroCreacionDTO);
+            return await _repositorioLibros.AnadirLibro(libroCreacionDTO, nombreEndpoint);
         }
         public async Task<ActionResult> ActualizarLibro(int id, LibroCreacionDTO libroCreacionDTO) 
         {

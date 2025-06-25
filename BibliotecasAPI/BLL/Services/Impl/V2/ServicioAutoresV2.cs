@@ -3,6 +3,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V2;
 using BibliotecasAPI.DAL.DTOs;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -45,6 +46,11 @@ namespace BibliotecasAPI.BLL.Services.Impl.V2
         public async Task<ActionResult> ActualizarAutor(int id, AutorCreacionConFotoDTO autorCreacionDTO)
         {
             return await _repositorioAutores.ActualizarAutor(id, autorCreacionDTO);
+        }
+
+        public async Task<ActionResult> PatchAutor(int id, JsonPatchDocument<AutorPatchDTO> patchDoc)
+        {
+            return await _repositorioAutores.PatchAutor(id, patchDoc);
         }
 
         public async Task<ActionResult> BorrarAutor(int id)

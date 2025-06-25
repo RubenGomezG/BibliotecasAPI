@@ -3,6 +3,7 @@ using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs.AutorDTOs;
 using BibliotecasAPI.DAL.DTOs.ComentarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BibliotecasAPI.BLL.Services.Impl.V1
@@ -35,9 +36,9 @@ namespace BibliotecasAPI.BLL.Services.Impl.V1
             return await _repositorioComentarios.ActualizarComentario(id, autorCreacionDTO);
         }
 
-        public async Task<ActionResult> PatchComentario(Comentario comentarioDB, ComentarioPatchDTO comentarioPatchDTO)
+        public async Task<ActionResult> PatchComentario(Guid id, int libroId, JsonPatchDocument<ComentarioPatchDTO> patchDoc)
         {
-            return await _repositorioComentarios.PatchComentario(comentarioDB, comentarioPatchDTO);
+            return await _repositorioComentarios.PatchComentario(id, libroId, patchDoc);
         }
 
         public async Task<ActionResult> BorradoLogicoComentario(Guid id, int libroId)

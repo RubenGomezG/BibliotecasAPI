@@ -5,7 +5,7 @@ namespace BibliotecasAPI.BLL.Services.Interfaces.V1
 {
     public interface IServicioAutoresColeccion
     {
-        public Task<ActionResult> AnadirVariosAutores(IEnumerable<AutorCreacionDTO> autoresCreacionDTO);
+        public Task<ActionResult> AnadirVariosAutores(IEnumerable<AutorCreacionDTO> autoresCreacionDTO, string nombreEndpoint);
         public Task<ActionResult<List<AutorConLibrosDTO>>> ObtenerAutoresPorIds(string ids);
     }
 }
