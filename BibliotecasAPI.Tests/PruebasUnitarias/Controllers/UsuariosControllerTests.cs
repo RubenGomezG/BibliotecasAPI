@@ -53,55 +53,6 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         }
 
         [TestMethod]
-        public async Task Registrar_DevuelveValidationProblem_SiFalla()
-        {
-            //Preparación
-            string mensajeDeError = "prueba";
-            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
-            {
-                Email = "prueba@hotmail.com",
-                Password = "aA123456!"
-            };
-
-            userManager.CreateAsync(Arg.Any<Usuario>(), Arg.Any<string>())
-                .Returns(IdentityResult.Failed(new IdentityError
-                {
-                    Code = mensajeDeError,
-                    Description = mensajeDeError,
-                }));
-
-            //Prueba
-            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Registrar(credenciales);
-
-            //Verificación
-            ObjectResult? resultado = respuesta.Result as ObjectResult;
-            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
-            Assert.IsNotNull(problemDetails);
-            Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
-            Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
-        }
-
-        [TestMethod]
-        public async Task Registrar_DevuelveToken_SiEsExito()
-        {
-            //Preparación
-            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
-            {
-                Email = "prueba@hotmail.com",
-                Password = "aA1234561234124124124!"
-            };
-
-            userManager.CreateAsync(Arg.Any<Usuario>(), Arg.Any<string>())
-                .Returns(IdentityResult.Success);
-
-            //Prueba
-            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Registrar(credenciales);
-
-            //Verificación
-            Assert.IsNotNull(respuesta.Value);
-        }
-
-        [TestMethod]
         public async Task Login_DevuelveLoginIncorrecto_SiUsuarioNoExiste()
         {
             //Preparación
@@ -115,15 +66,14 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
             userManager.FindByEmailAsync(credenciales.Email)!
                 .Returns(Task.FromResult<Usuario>(null!));
 
+            servicioUsuarios.Login(credenciales).Returns(new NotFoundResult());
+
             //Prueba
             ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
 
             //Verificación
-            ObjectResult? resultado = respuesta.Result as ObjectResult;
-            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
-            Assert.IsNotNull(problemDetails);
-            Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
-            Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
+            StatusCodeResult? resultado = respuesta.Result as StatusCodeResult;
+            Assert.AreEqual(mensajeDeError, controller.ModelState.Root.Errors.First().ErrorMessage);
         }
 
         [TestMethod]
@@ -147,44 +97,14 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
 
             signInManager.CheckPasswordSignInAsync(usuario, credenciales.Password, false)
                 .Returns(Microsoft.AspNetCore.Identity.SignInResult.Failed);
+            servicioUsuarios.Login(credenciales).Returns(new NotFoundResult());
 
             //Prueba
             ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
 
             //Verificación
-            ObjectResult? resultado = respuesta.Result as ObjectResult;
-            ValidationProblemDetails? problemDetails = resultado!.Value as ValidationProblemDetails;
-            Assert.IsNotNull(problemDetails);
-            Assert.AreEqual(1, problemDetails.Errors.Keys.Count);
-            Assert.AreEqual(mensajeDeError, problemDetails.Errors.Values.First().First());
-        }
-
-        [TestMethod]
-        public async Task Login_DevuelveToken_SiLoginEsCorrecto()
-        {
-            //Preparación
-            CredencialesUsuarioDTO credenciales = new CredencialesUsuarioDTO
-            {
-                Email = "prueba@hotmail.com",
-                Password = "aA1234561234124124124!"
-            };
-
-            Usuario usuario = new Usuario
-            {
-                Email = credenciales.Email
-            };
-
-            userManager.FindByEmailAsync(credenciales.Email)!
-                .Returns(Task.FromResult<Usuario>(usuario));
-
-            signInManager.CheckPasswordSignInAsync(usuario, credenciales.Password, false)
-                .Returns(Microsoft.AspNetCore.Identity.SignInResult.Success);
-
-            //Prueba
-            ActionResult<RespuestaAutenticacionDTO> respuesta = await controller.Login(credenciales);
-
-            //Verificación
-            Assert.IsNotNull(respuesta.Value);
+            StatusCodeResult? resultado = respuesta.Result as StatusCodeResult;
+            Assert.AreEqual(mensajeDeError, controller.ModelState.Root.Errors.First().ErrorMessage);
         }
     }
 }

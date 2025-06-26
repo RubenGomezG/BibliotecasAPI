@@ -295,41 +295,41 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
             Assert.AreEqual(404, resultado!.StatusCode);
         }
 
-        //[TestMethod]
-        //public async Task Patch_ActualizaUnSoloCampo_CuandoSeLeEnviaUnaOperacionConUnSoloCambio()
-        //{
-        //    //Preparación
-        //    ApplicationDbContext context = ConstruirContext(nombreBD);
+        [TestMethod]
+        public async Task Patch_ActualizaUnSoloCampo_CuandoSeLeEnviaUnaOperacionConUnSoloCambio()
+        {
+            //Preparación
+            ApplicationDbContext context = ConstruirContext(nombreBD);
 
-        //    context.Autores.Add(new Autor
-        //    {
-        //        Nombre = "Rosi",
-        //        Apellidos = "Rosez",
-        //        Identificacion = "123",
-        //        Foto = "URL-1"
-        //    });
+            context.Autores.Add(new Autor
+            {
+                Nombre = "Rosi",
+                Apellidos = "Rosez",
+                Identificacion = "123",
+                Foto = "URL-1"
+            });
 
-        //    await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
-        //    JsonPatchDocument<AutorPatchDTO> patchDoc = new JsonPatchDocument<AutorPatchDTO>();
-        //    patchDoc.Operations.Add(new Operation<AutorPatchDTO>("replace", "/nombre", null, "Rosiiiiiii"));
+            JsonPatchDocument<AutorPatchDTO> patchDoc = new JsonPatchDocument<AutorPatchDTO>();
+            patchDoc.Operations.Add(new Operation<AutorPatchDTO>("replace", "/nombre", null, "Rosiiiiiii"));
 
-        //    //Prueba
-        //    ActionResult respuesta = await repositorio.PatchAutor(1, patchDoc);
+            //Prueba
+            ActionResult respuesta = await repositorio.PatchAutor(1, patchDoc);
 
-        //    //Verificación
-        //    StatusCodeResult? resultado = respuesta as StatusCodeResult;
+            //Verificación
+            StatusCodeResult? resultado = respuesta as StatusCodeResult;
 
-        //    Assert.AreEqual(204, resultado!.StatusCode);
-        //    await outputCacheStore.Received(1).EvictByTagAsync(CACHE_AUTORES, default);
+            Assert.AreEqual(204, resultado!.StatusCode);
+            await outputCacheStore.Received(1).EvictByTagAsync(CACHE_AUTORES, default);
 
-        //    ApplicationDbContext context2 = ConstruirContext(nombreBD);
-        //    Autor autorBD = await context2.Autores.SingleAsync();
+            ApplicationDbContext context2 = ConstruirContext(nombreBD);
+            Autor autorBD = await context2.Autores.SingleAsync();
 
-        //    Assert.AreEqual(expected: "Rosiiiiiii", autorBD.Nombre);
-        //    Assert.AreEqual(expected: "Rosez", autorBD.Apellidos);
-        //    Assert.AreEqual(expected: "123", autorBD.Identificacion);
-        //    Assert.AreEqual(expected: "URL-1", actual: autorBD.Foto);
-        //}
+            Assert.AreEqual(expected: "Rosiiiiiii", autorBD.Nombre);
+            Assert.AreEqual(expected: "Rosez", autorBD.Apellidos);
+            Assert.AreEqual(expected: "123", autorBD.Identificacion);
+            Assert.AreEqual(expected: "URL-1", actual: autorBD.Foto);
+        }
     }
 }

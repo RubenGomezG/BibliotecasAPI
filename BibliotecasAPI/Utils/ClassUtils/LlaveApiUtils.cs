@@ -10,7 +10,7 @@ namespace BibliotecasAPI.Utils.ClassUtils
     {
         public static string GenerarLlave() => Guid.NewGuid().ToString().Replace("-", "");
 
-        public static async Task<LlaveAPI> CrearLlave(ApplicationDbContext context, string usuarioId, TipoLlave tipoLlave)
+        public static LlaveAPI CrearLlave(ApplicationDbContext context, string usuarioId, TipoLlave tipoLlave)
         {
             var llave = GenerarLlave();
 
@@ -22,8 +22,6 @@ namespace BibliotecasAPI.Utils.ClassUtils
                 UsuarioId = usuarioId
             };
 
-            context.Add(llaveAPI);
-            await context.SaveChangesAsync();
             return llaveAPI;
         }
     }

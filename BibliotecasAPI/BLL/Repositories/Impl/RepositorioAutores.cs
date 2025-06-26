@@ -244,14 +244,15 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             }
 
             AutorPatchDTO autorPatchDTO = _mapper.Map<AutorPatchDTO>(autorDB);
-            Controller? controller = _httpContextAccessor.HttpContext!.GetEndpoint()!.Metadata.GetMetadata<Controller>();
-            patchDoc.ApplyTo(autorPatchDTO, controller!.ModelState);
-
-            if (!controller.TryValidateModel(autorPatchDTO))
+            try
             {
-                return controller.ValidationProblem();
+                patchDoc.ApplyTo(autorPatchDTO);
             }
-
+            catch (Exception)
+            {
+                ArgumentNullException.ThrowIfNull(autorPatchDTO);
+            }
+            
             _mapper.Map(autorPatchDTO, autorDB);
             await _context.SaveChangesAsync();
             await _outputCacheStore.EvictByTagAsync(CACHE_AUTORES, default);

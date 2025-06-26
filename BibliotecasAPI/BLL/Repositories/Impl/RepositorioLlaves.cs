@@ -72,7 +72,9 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 }
             }
 
-            LlaveAPI llaveAPI = await LlaveApiUtils.CrearLlave(_context, usuarioId!, llave.TipoLlave);
+            LlaveAPI llaveAPI = LlaveApiUtils.CrearLlave(_context, usuarioId!, llave.TipoLlave);
+            _context.Add(llaveAPI);
+            await _context.SaveChangesAsync();
             LlaveDTO llaveDTO = _mapper.Map<LlaveDTO>(llaveAPI);
             return new CreatedAtRouteResult(nombreEndpoint, new { id = llaveAPI.Id }, llaveDTO);
         }

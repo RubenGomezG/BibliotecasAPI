@@ -10,10 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace BibliotecasAPI.Controllers.V1
 {
@@ -48,122 +45,55 @@ namespace BibliotecasAPI.Controllers.V1
         public async Task<ActionResult<RespuestaAutenticacionDTO>> Registrar(
             CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var usuario = new Usuario
-            {
-                UserName = credencialesUsuarioDTO.Email,
-                Email = credencialesUsuarioDTO?.Email
-            };
-
-            var resultado = await _userManager.CreateAsync(usuario, credencialesUsuarioDTO!.Password!);
-            if (resultado.Succeeded)
-            {
-                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
-                await LlaveApiUtils.CrearLlave(_context, usuario.Id, TipoLlave.Gratuita);
-                return respuestaAutenticacion;
-            }
-            else
-            {
-                foreach (var error in resultado.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return ValidationProblem();
-            }
+            return await _servicioUsuarios.Registrar(credencialesUsuarioDTO);
         }
 
         [HttpPost("login", Name = "LoginV1")]
         [AllowAnonymous]
-        public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(
-            CredencialesUsuarioDTO credencialesUsuarioDTO)
+        public async Task<ActionResult<RespuestaAutenticacionDTO>> Login(CredencialesUsuarioDTO credencialesUsuarioDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(credencialesUsuarioDTO.Email);
-
-            if (usuario is null)
+            ActionResult<RespuestaAutenticacionDTO> result = await _servicioUsuarios.Login(credencialesUsuarioDTO);
+            StatusCodeResult? codigo = result.Result as StatusCodeResult;
+            if (codigo!.StatusCode == 404)
             {
-                return ModelState.RetornarLoginIncorrecto();   
+                ModelState.RetornarLoginIncorrecto();
             }
-
-            var resultado = await _signInManager.CheckPasswordSignInAsync(usuario, credencialesUsuarioDTO!.Password!, lockoutOnFailure: false);
-            if (resultado.Succeeded)
-            {
-                var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
-                return respuestaAutenticacion;
-            }
-            else
-            {
-                return ModelState.RetornarLoginIncorrecto();
-            }
+            return result;
         }
 
         [HttpGet(Name = "ObtenerUsuariosV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult<IEnumerable<UsuarioDTO>>> Get()
         {
-            var usuarios = await _context.Users.ToListAsync();
-            var usuariosDTO = _mapper.Map<IEnumerable<UsuarioDTO>>(usuarios);
-            return Ok(usuariosDTO);
+            return await _servicioUsuarios.ObtenerUsuarios();
         }
 
         [HttpPut(Name = "ActualizarUsuarioV1")]
         [Authorize]
         public async Task<ActionResult> Put(ActualizarUsuarioDTO actualizarUsuarioDTO)
         {
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
-
-            if (usuario is null)
-            {
-                return NotFound();
-            }
-
-            usuario.FechaNacimiento = actualizarUsuarioDTO.FechaNacimiento;
-
-            await _userManager.UpdateAsync(usuario);
-            return NoContent();
+            return await _servicioUsuarios.ActualizarUsuario(actualizarUsuarioDTO);
         }
 
         [HttpGet("renovar-token", Name = "RenovarTokenV1")]
         [Authorize]
         public async Task<ActionResult<RespuestaAutenticacionDTO>> RenovarToken()
         {
-            var usuario = await _servicioUsuarios.ObtenerUsuario();
-            if (usuario is null)
-            {
-                return NotFound();
-            }
-            var credencialesUsuarioDTO = new CredencialesUsuarioDTO { Email = usuario.Email! };
-
-            var respuestaAutenticacion = await UserUtils.ConstruirToken(credencialesUsuarioDTO, _configuration, _userManager, usuario.Id);
-            return respuestaAutenticacion;
+            return await _servicioUsuarios.RenovarToken();
         }
 
         [HttpPost("hacer-admin", Name = "HacerAdminV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> HacerAdmin(EditarClaimDTO editarClaimDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
-
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            await _userManager.AddClaimAsync(usuario, new Claim ("esAdmin", "true"));
-            return NoContent();
+            return await _servicioUsuarios.HacerAdmin(editarClaimDTO);
         }
 
         [HttpPost("quitar-admin", Name = "QuitarAdminV1")]
         [Authorize(Policy = "esAdmin")]
         public async Task<ActionResult> QuitarAdmin(EditarClaimDTO editarClaimDTO)
         {
-            var usuario = await _userManager.FindByEmailAsync(editarClaimDTO.Email);
-
-            if (usuario == null)
-            {
-                return NotFound();
-            }
-
-            await _userManager.RemoveClaimAsync(usuario, new Claim("esAdmin", "true"));
-            return NoContent();
+            return await _servicioUsuarios.QuitarAdmin(editarClaimDTO);
         }
     }
 }

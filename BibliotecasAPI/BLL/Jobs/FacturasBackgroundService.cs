@@ -1,5 +1,4 @@
-﻿
-using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.DAL.Datos;
 using Microsoft.EntityFrameworkCore;
 
 namespace BibliotecasAPI.BLL.Jobs

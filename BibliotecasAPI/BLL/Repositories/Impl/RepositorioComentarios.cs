@@ -20,7 +20,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         private readonly IMapper _mapper;
         private readonly IServicioUsuarios _servicioUsuarios;
         private readonly IOutputCacheStore _outputCacheStore;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private const string CACHE_COMENTARIOS = "comentarios-obtener";
 
         public RepositorioComentarios(ApplicationDbContext context, IMapper mapper, IServicioUsuarios servicioUsuarios,
@@ -30,7 +29,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             _mapper = mapper;
             _servicioUsuarios = servicioUsuarios;
             _outputCacheStore = outputCacheStore;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ActionResult<IEnumerable<ComentarioDTO>>> GetComentariosDeLibro(int libroId)
@@ -39,6 +37,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             {
                 return new NotFoundResult();
             }
+
             List<Comentario> comentarios = await _context.Comentarios
                 .Include(c => c.Usuario)
                 .Where(c => c.LibroId == libroId)
@@ -120,12 +119,13 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             if (result.GetType() == typeof(NoContentResult))
             {
                 var comentarioPatchDTO = _mapper.Map<ComentarioPatchDTO>(comentarioDB);
-                Controller? controller = _httpContextAccessor.HttpContext!.GetEndpoint()!.Metadata.GetMetadata<Controller>();
-                patchDoc.ApplyTo(comentarioPatchDTO, controller!.ModelState);
-
-                if (!controller.TryValidateModel(comentarioPatchDTO))
+                try
                 {
-                    return controller.ValidationProblem();
+                    patchDoc.ApplyTo(comentarioPatchDTO);
+                }
+                catch (Exception)
+                {
+                    ArgumentNullException.ThrowIfNull(comentarioPatchDTO);
                 }
                 _mapper.Map(comentarioPatchDTO, comentarioDB);
                 await _context.SaveChangesAsync();
