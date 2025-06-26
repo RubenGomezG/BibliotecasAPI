@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BibliotecasAPI.BLL.Repositories.Impl;
 using BibliotecasAPI.BLL.Repositories.Interfaces;
-using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
 using BibliotecasAPI.DAL.Model.Entidades;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Security.Claims;
 
 namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
@@ -24,7 +22,6 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
         private IRepositorioUsuarios repositorioUsuarios = null!;
         private IConfiguration configuration = null!;
         private SignInManager<Usuario> signInManager = null!;
-        private IServicioUsuarios servicioUsuarios = null!;
         private IMapper mapper = null!;
 
         [TestInitialize]
@@ -43,7 +40,6 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
                 .AddInMemoryCollection(configuracion!)
                 .Build();
 
-            servicioUsuarios = Substitute.For<IServicioUsuarios>();
             ApplicationDbContext context = ConstruirContext(nombreBD);
             mapper = Substitute.For<IMapper>();
             userManager = Substitute.For<UserManager<Usuario>>(
@@ -54,7 +50,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Repositories
 
             signInManager = Substitute.For<SignInManager<Usuario>>(userManager,httpContextAccessor, claimsFactory, null, null, null, null);
             repositorioUsuarios = new RepositorioUsuarios(userManager, httpContextAccessor,
-                configuration, signInManager, servicioUsuarios, context, mapper);
+                configuration, signInManager, context, mapper);
         }
 
         [TestMethod]

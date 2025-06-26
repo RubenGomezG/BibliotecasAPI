@@ -46,7 +46,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 .Include(r => r.Llave)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            ActionResult result = RestriccionesUtils.ValidarRestriccionIp(_servicioUsuarios, restriccionDB);
+            ActionResult result = RestriccionesValidation.ValidarRestriccionIp(_servicioUsuarios, restriccionDB);
             if (result.GetType() == typeof(NoContentResult))
             {
                 restriccionDB!.Ip = restriccion.Ip;
@@ -62,7 +62,7 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
                 .Include(r => r.Llave)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            ActionResult result = RestriccionesUtils.ValidarRestriccionIp(_servicioUsuarios, restriccionDB);
+            ActionResult result = RestriccionesValidation.ValidarRestriccionIp(_servicioUsuarios, restriccionDB);
             if (result.GetType() == typeof(NoContentResult))
             {
                 _context.Remove(restriccionDB!);

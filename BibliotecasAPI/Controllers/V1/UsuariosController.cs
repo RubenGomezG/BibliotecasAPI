@@ -1,16 +1,9 @@
-﻿using AutoMapper;
-using BibliotecasAPI.BLL.Services.Interfaces.V1;
-using BibliotecasAPI.DAL.Datos;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
-using BibliotecasAPI.DAL.Model.Entidades;
 using BibliotecasAPI.Utils.Attributes;
-using BibliotecasAPI.Utils.ClassUtils;
 using BibliotecasAPI.Utils.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace BibliotecasAPI.Controllers.V1
 {
@@ -19,26 +12,11 @@ namespace BibliotecasAPI.Controllers.V1
     [DeshabilitarLimitePeticiones]
     public class UsuariosController : ControllerBase
     {
-        private readonly UserManager<Usuario> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly SignInManager<Usuario> _signInManager;
         private readonly IServicioUsuarios _servicioUsuarios;
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
 
-        public UsuariosController(UserManager<Usuario> userManager,
-            IConfiguration configuration,
-            SignInManager<Usuario> signInManager,
-            IServicioUsuarios servicioUsuarios,
-            ApplicationDbContext context,
-            IMapper mapper)
+        public UsuariosController(IServicioUsuarios servicioUsuarios)
         {
-            _userManager = userManager;
-            _configuration = configuration;
-            _signInManager = signInManager;
             _servicioUsuarios = servicioUsuarios;
-            _context = context;
-            _mapper = mapper;
         }
 
         [HttpPost("registro", Name = "RegistrarV1")]

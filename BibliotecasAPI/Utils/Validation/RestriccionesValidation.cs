@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BibliotecasAPI.Utils.Validation
 {
-    public static class RestriccionesUtils
+    public static class RestriccionesValidation
     {
         public static ActionResult ValidarRestriccionDominio(IServicioUsuarios servicioUsuarios, RestriccionDominio? restriccionDB)
         {

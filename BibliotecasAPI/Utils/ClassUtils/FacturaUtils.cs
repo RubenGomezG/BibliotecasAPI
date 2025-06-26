@@ -3,7 +3,7 @@ using BibliotecasAPI.DAL.Model.Entidades;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BibliotecasAPI.Utils.Validation
+namespace BibliotecasAPI.Utils.ClassUtils
 {
     public static class FacturaUtils
     {

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BibliotecasAPI.BLL.Services.Interfaces.V1;
+﻿using BibliotecasAPI.BLL.Services.Interfaces.V1;
 using BibliotecasAPI.Controllers.V1;
 using BibliotecasAPI.DAL.Datos;
 using BibliotecasAPI.DAL.DTOs.UsuarioDTOs;
@@ -17,17 +16,14 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
         private string nombreBD = Guid.NewGuid().ToString();
         private UserManager<Usuario> userManager = null!;
         private IHttpContextAccessor httpContextAccessor = null!;
-        private IConfiguration configuration = null!;
         private SignInManager<Usuario> signInManager = null!;
         private UsuariosController controller = null!;
         private IServicioUsuarios servicioUsuarios = null!;
-        private IMapper mapper = null!;
 
         [TestInitialize]
         public void Setup()
         {
             ApplicationDbContext context = ConstruirContext(nombreBD);
-            mapper = ConfigurarAutoMapper();
 
             userManager = Substitute.For<UserManager<Usuario>>(
                 Substitute.For<IUserStore<Usuario>>(), null, null, null, null, null, null, null, null);
@@ -39,9 +35,6 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
                 }
             };
 
-            configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(configuracion!)
-                .Build();
 
             httpContextAccessor = Substitute.For<IHttpContextAccessor>();
             servicioUsuarios = Substitute.For<IServicioUsuarios>();
@@ -49,7 +42,7 @@ namespace BibliotecasAPI.Tests.PruebasUnitarias.Controllers
             signInManager = Substitute.For<SignInManager<Usuario>>(userManager, httpContextAccessor,
                 userClaimsFactory, null, null, null, null);
 
-            controller = new UsuariosController(userManager, configuration, signInManager, servicioUsuarios, context, mapper);
+            controller = new UsuariosController(servicioUsuarios);
         }
 
         [TestMethod]

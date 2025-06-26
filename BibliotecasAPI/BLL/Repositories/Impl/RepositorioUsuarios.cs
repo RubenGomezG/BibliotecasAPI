@@ -21,7 +21,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IConfiguration _configuration;
         private readonly SignInManager<Usuario> _signInManager;
-        private readonly IServicioUsuarios _servicioUsuarios;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
@@ -29,7 +28,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             IHttpContextAccessor contextAccessor,
             IConfiguration configuration,
             SignInManager<Usuario> signInManager,
-            IServicioUsuarios servicioUsuarios,
             ApplicationDbContext context,
             IMapper mapper)
         {
@@ -37,7 +35,6 @@ namespace BibliotecasAPI.BLL.Repositories.Impl
             _contextAccessor = contextAccessor;
             _configuration = configuration;
             _signInManager = signInManager;
-            _servicioUsuarios = servicioUsuarios;
             _context = context;
             _mapper = mapper;
         }
